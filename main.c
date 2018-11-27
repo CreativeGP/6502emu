@@ -87,7 +87,7 @@ int main(int argc, char *argv[], char *envp[])
         }
         
         switch (c) {
-            case 1:
+            case 0:
                 switch (a) {
                     case 5: goto LDY;
                     case 6: goto CPY;
@@ -101,8 +101,8 @@ int main(int argc, char *argv[], char *envp[])
                     case 2: goto EOR;
                     case 3: goto ADC;
                     case 4: goto STA;
-                    case 6: goto LDA;
-                    case 5: goto CMP;
+                    case 5: goto LDA;
+                    case 6: goto CMP;
                     case 7: goto SBC;
                 }
                 break;
@@ -113,8 +113,8 @@ int main(int argc, char *argv[], char *envp[])
                     case 2: goto LSR;
                     case 3: goto ROR;
                     case 4: goto STX;
-                    case 6: goto LDX;
-                    case 5: goto DEC;
+                    case 5: goto LDX;
+                    case 6: goto DEC;
                     case 7: goto INC;
                 }
                 break;
