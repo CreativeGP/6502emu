@@ -45,17 +45,10 @@ union
     } flags;
 } SR = 0;
 
+u16 operand = 0;
 
-inline void push(u8 data)
-{
-//    if (S == 0) Stack Overflow!
-    mem[0x0100 + S--] = data;
-}
-
-inline u8 pop()
-{
-    return mem[0x0100 + S++];
-}
+inline void push(u8 data);
+inline u8 pop();
 
 
 int main(int argc, char *argv[], char *envp[])
@@ -77,20 +70,22 @@ int main(int argc, char *argv[], char *envp[])
         u8 a = (op & 0b11100000) >> 5;
         u8 b = (op &    0b11100) >> 2;
         u8 c = (op &       0b11);
-        u16 operand = 0;
+        u16 tmppc = PC++;
+
+#define LLHH(l, h) l + h<<8
+#define CUT(x) (x)&0xFF
+#define LOAD16(x) LLHH(mem[x],mem[x+1])
         switch (b) {
-            case 0: operand = X + mem[PC++]; break; // X,ind
-            case 1: operand =     mem[PC++]; break; // zpg
-            case 2: operand =     mem[PC++]; break; // #
-            case 3: operand = mem[PC++] + mem[PC++]<<8; break; // abs
-            case 4: operand = X + mem[PC++]; break; // ind,Y
-            case 5: operand = X + mem[PC++]; break; // zpg,X
-            case 6: operand = X + mem[PC++]; break; // abs,Y
-            case 7: operand = Y + mem[PC++]; break; // abs,X
-        if (c == 1) {
-            
-            if (a == 0)
+            case 0: operand = LOAD16(mem[CUT(tmppc+X)]); break;       // X,ind
+            case 1: operand = mem[tmppc]; break;                      // zpg
+            case 2: operand = mem[tmppc]; break;                      // #
+            case 3: operand = LLHH(mem[tmppc], mem[PC++]); break;     // abs
+            case 4: operand = LOAD16(CUT(mem[tmppc]+Y)); break;       // ind,Y
+            case 5: operand = CUT(mem[tmppc]+X); break;               // zpg,X
+            case 6: operand = LLHH(mem[tmppc], mem[PC++]) + X; break; // abs,Y
+            case 7: operand = LLHH(mem[tmppc], mem[PC++]) + X; break; // abs,X
         }
+        
 
 ret:
 
@@ -100,5 +95,17 @@ ret:
 
     return 0;
 }
+
+inline void push(u8 data)
+{
+//    if (S == 0) Stack Overflow!
+    mem[0x0100 + S--] = data;
+}
+
+inline u8 pop()
+{
+    return mem[0x0100 + S++];
+}
+
 
 #include "inst.h"

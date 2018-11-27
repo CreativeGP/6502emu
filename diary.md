@@ -191,21 +191,21 @@ u8 c = (op &       0b11);
 
 bによってこのように決まっています。また、各展開方法は以下のような感じです。（レジスタ名だけを記述しているところは、レジスタ名の値を表しています）
 
-| 識別子 | 名前                | アセンブリ | 意味                                              |
-| ------ | ------------------- | ---------- | ------------------------------------------------- |
-| A      | Accumulator         | A          | 値Aがオペランド                                   |
-| abs    | absolute            | $LLHH      | *$LLHH*番地がオペランド                           |
-| abs,X  | absolute, X-indexed | $LLHH,X    | *$LLHH+X*番地がオペランド                         |
-| abs,Y  | absolute, Y-indexed | $LLHH,Y    | *$LLHH+Y*番地がオペランド                         |
-| #      | immediate           | #$BB       | 値BBがオペランド                                  |
-| impl   | implied             |            | オペランド無し                                    |
-| ind    | indirect            | ($LLHH)    | *$LLHH番地の値を***アドレスとして**オペランドに   |
-| X,ind  | X-indexed, indirect | ($LL,X)    | *$LLHH+X番地の値を***アドレスとして**オペランドに |
-| ind    | indirect, Y-indexed | ($LL),Y    | *$LLHH番地の値**+Y**を*アドレスとしてオペランドに |
-|        |                     |            |                                                   |
-|        |                     |            |                                                   |
-|        |                     |            |                                                   |
-|        |                     |            |                                                   |
+| 識別子 | 名前                 | アセンブリ | 意味                                              |
+| ------ | -------------------- | ---------- | ------------------------------------------------- |
+| A      | Accumulator          | A          | 値Aがオペランド                                   |
+| abs    | absolute             | $LLHH      | *$LLHH*番地がオペランド                           |
+| abs,X  | absolute, X-indexed  | $LLHH,X    | *$LLHH+X*番地がオペランド                         |
+| abs,Y  | absolute, Y-indexed  | $LLHH,Y    | *$LLHH+Y*番地がオペランド                         |
+| #      | immediate            | #$BB       | 値BBがオペランド                                  |
+| impl   | implied              |            | オペランド無し                                    |
+| ind    | indirect             | ($LLHH)    | *$LLHH番地の値を***アドレスとして**オペランドに   |
+| X,ind  | X-indexed, indirect  | ($LL,X)    | *$00LL+X番地の値を***アドレスとして**オペランドに |
+| ind    | indirect, Y-indexed  | ($LL),Y    | *$00LL番地の値**+Y**を*アドレスとしてオペランドに |
+| rel    | relative             | $BB        | 分岐先は$BB+PC                                    |
+| zpg    | zero page            | $LL        | $00LL番地がオペランド                             |
+| zpg,X  | zero page, X-indexed |            |                                                   |
+| zpg,Y  | zero page, Y-indexed |            |                                                   |
 
 
 
