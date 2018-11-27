@@ -86,6 +86,32 @@ int main(int argc, char *argv[], char *envp[])
             case 7: operand = LLHH(mem[tmppc], mem[PC++]) + X; break; // abs,X
         }
         
+        switch (c) {
+            case 1:
+                switch (a) {
+                    case 0: goto ORA;
+                    case 1: goto AND;
+                    case 2: goto EOR;
+                    case 3: goto ADC;
+                    case 4: goto STA;
+                    case 6: goto LDA;
+                    case 5: goto CMP;
+                    case 7: goto SBC;
+                }
+                break;
+            case 2:
+                switch (a) {
+                    case 0: goto ASL;
+                    case 1: goto ROL;
+                    case 2: goto LSR;
+                    case 3: goto ROR;
+                    case 4: goto STX;
+                    case 6: goto LDX;
+                    case 5: goto DEC;
+                    case 7: goto INC;
+                }
+                break;
+        }
 
 ret:
 
