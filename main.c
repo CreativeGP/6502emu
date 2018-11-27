@@ -14,6 +14,7 @@
 typedef uint8_t u8;
 typedef int8_t i8;
 typedef uint16_t u16;
+typedef uint32_t u32;
 typedef uint64_t u64;
 
 /*
@@ -23,16 +24,22 @@ typedef uint64_t u64;
  */
 u8 *mem = 0;
 
-const u8 cycles[] =
+const u32 CyclicTasks[] =
+{
+};
+const u8 Cycles[] =
 {
     7, 6, 0, 0, 
 };
+u8 ExitRequired = 0;
+enum {InterruptPeriod = 100};
+u64 Counter = InterruptPeriod;
 
 u8 A=0, X=0, Y=0, S=0xFF;
 u16 PC=0;
 union
 {
-    unsigned int P: 7;
+    unsigned int P: 8;
     struct
     {
         unsigned int C: 1;
@@ -40,10 +47,11 @@ union
         unsigned int I: 1;
         unsigned int D: 1;
         unsigned int B: 1;
+        unsigned int unu: 1;
         unsigned int O: 1;
         unsigned int N: 1;
     } flags;
-} SR = 0;
+} SR = { .P = 0b00100000 };
 
 u16 operand = 0;
 
@@ -60,17 +68,20 @@ int main(int argc, char *argv[], char *envp[])
         return -1;
     }
 
-    u64 counter = UINT64_MAX;
     PC = mem[0xFFFD]<<8 + mem[0xFFFC];
     for (;;)
     {
         u8 op = mem[PC++];
-        counter -= cycles[op];
+        Counter -= Cycles[op];
 
         u8 a = (op & 0b11100000) >> 5;
         u8 b = (op &    0b11100) >> 2;
         u8 c = (op &       0b11);
         u16 tmppc = PC++;
+
+        switch (op) {
+            case 0x00: goto BRK;
+        }
 
 #define LLHH(l, h) l + h<<8
 #define CUT(x) (x)&0xFF
@@ -120,8 +131,14 @@ int main(int argc, char *argv[], char *envp[])
                 break;
         }
 
+#include "inst.h"
 ret:
 
+        if (Counter <= 0) {
+            /* check interrupts */
+            Counter += InterruptPeriod;
+            if (ExitRequired) break;
+        }
     }
 
     free(mem);
@@ -141,4 +158,3 @@ inline u8 pop()
 }
 
 
-#include "inst.h"

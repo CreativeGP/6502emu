@@ -8,62 +8,68 @@
   --------------------------------------------
   implied       BRK           00    1     7
 */              
-0x00:
-state.flags.I = 1;
-push(PC+2)
-push(SR)
+BRK:
+SR.flags.I = 1;
+push(PC+2);
+push(SR.P);
+ExitRequired = 1;    
 //interrupt
 goto ret;
 
-/*
-ORA  OR Memory with Accumulator
-
-A OR M -> A                      N Z C I D V
-                                 + + - - - -
-
-addressing    assembler    opc  bytes  cyles
---------------------------------------------
-(indirect,X)  ORA (oper,X)  01    2     6
-*/              
-0x01:
-A = A | mem[PC++];
-if ((i8)A < 0) SR.flags.N = 1
-if (A == 0) SR.flags.Z = 1
+LDY:
 goto ret;
 
-
-/*
-ORA  OR Memory with Accumulator
-
-A OR M -> A                      N Z C I D V
-                                 + + - - - -
-
-addressing    assembler    opc  bytes  cyles
---------------------------------------------
-(indirect,X)  ORA (oper,X)  01    2     6
-*/              
-0x01:
-A = A | mem[PC++];
-if ((i8)A < 0) SR.flags.N = 1
-if (A == 0) SR.flags.Z = 1
+CPY:
 goto ret;
 
-/*
-  MP  Compare Memory with Accumulator
+CPX:
+goto ret;
 
-  A - M                            N Z C I D V
-  + + + - - -
+ORA:
+goto ret;
 
-  addressing    assembler    opc  bytes  cyles
-  --------------------------------------------
-  immidiate     CMP #oper     C9    2     2
-  zeropage      CMP oper      C5    2     3
-  zeropage,X    CMP oper,X    D5    2     4
-  absolute      CMP oper      CD    3     4
-  absolute,X    CMP oper,X    DD    3     4*
-  absolute,Y    CMP oper,Y    D9    3     4*
-  (indirect,X)  CMP (oper,X)  C1    2     6
-  (indirect),Y  CMP (oper),Y  D1    2     5*
-*/
+AND:
+goto ret;
+
+EOR:
+goto ret;
+
+ADC:
+goto ret;
+
+STA:
+goto ret;
+
+LDA:
+goto ret;
+
 CMP:
+goto ret;
+
+SBC:
+goto ret;
+
+ASL:
+goto ret;
+
+ROL:
+goto ret;
+
+LSR:
+goto ret;
+
+ROR:
+goto ret;
+
+STX:
+goto ret;
+
+LDX:
+goto ret;
+
+DEC:
+goto ret;
+
+INC:
+goto ret;
 
