@@ -89,6 +89,13 @@ int main(int argc, char *argv[], char *envp[])
         switch (c) {
             case 1:
                 switch (a) {
+                    case 5: goto LDY;
+                    case 6: goto CPY;
+                    case 7: goto CPX;
+                }
+                break;
+            case 1:
+                switch (a) {
                     case 0: goto ORA;
                     case 1: goto AND;
                     case 2: goto EOR;
