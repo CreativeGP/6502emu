@@ -191,23 +191,90 @@ u8 c = (op &       0b11);
 
 bによってこのように決まっています。また、各展開方法は以下のような感じです。（レジスタ名だけを記述しているところは、レジスタ名の値を表しています）
 
-| 識別子 | 名前                 | アセンブリ | 意味                                              |
-| ------ | -------------------- | ---------- | ------------------------------------------------- |
-| A      | Accumulator          | A          | 値Aがオペランド                                   |
-| abs    | absolute             | $LLHH      | *$LLHH*番地がオペランド                           |
-| abs,X  | absolute, X-indexed  | $LLHH,X    | *$LLHH+X*番地がオペランド                         |
-| abs,Y  | absolute, Y-indexed  | $LLHH,Y    | *$LLHH+Y*番地がオペランド                         |
-| #      | immediate            | #$BB       | 値BBがオペランド                                  |
-| impl   | implied              |            | オペランド無し                                    |
-| ind    | indirect             | ($LLHH)    | *$LLHH番地の値を***アドレスとして**オペランドに   |
-| X,ind  | X-indexed, indirect  | ($LL,X)    | *$00LL+X番地の値を***アドレスとして**オペランドに |
-| ind    | indirect, Y-indexed  | ($LL),Y    | *$00LL番地の値**+Y**を*アドレスとしてオペランドに |
-| rel    | relative             | $BB        | 分岐先は$BB+PC                                    |
-| zpg    | zero page            | $LL        | $00LL番地がオペランド                             |
-| zpg,X  | zero page, X-indexed |            |                                                   |
-| zpg,Y  | zero page, Y-indexed |            |                                                   |
+| 識別子 | 名前                 | アセンブリ | 意味                                                      |
+| ------ | -------------------- | ---------- | --------------------------------------------------------- |
+| A      | Accumulator          | A          | 値Aがオペランド                                           |
+| abs    | absolute             | $LLHH      | *$LLHH*番地がオペランド                                   |
+| abs,X  | absolute, X-indexed  | $LLHH,X    | *$LLHH+X*番地がオペランド                                 |
+| abs,Y  | absolute, Y-indexed  | $LLHH,Y    | *$LLHH+Y*番地がオペランド                                 |
+| #      | immediate            | #$BB       | 値BBがオペランド                                          |
+| impl   | implied              |            | オペランド無し                                            |
+| ind    | indirect             | ($LLHH)    | *$LLHH番地と隣の値を***16-bitアドレスとして**オペランドに |
+| X,ind  | X-indexed, indirect  | ($LL,X)    | *$00LL+X番地の値を***16-bitアドレスとして**オペランドに   |
+| ind,Y  | indirect, Y-indexed  | ($LL),Y    | *$00LL番地の値**+Y**を*16-bitアドレスとしてオペランドに   |
+| rel    | relative             | $BB        | 分岐先は$BB+PC                                            |
+| zpg    | zero page            | $LL        | $00LL番地がオペランド                                     |
+| zpg,X  | zero page, X-indexed | $LL,X      | $00LL+X番地がオペランド                                   |
+| zpg,Y  | zero page, Y-indexed | $LL,Y      | $00LL+Y番地がオペランド                                   |
 
+ちょっとややこしい部分もありますね。
 
+後留意スべき点としては、
+
+> 
+>
+>**  The available 16-bit address space is conceived as consisting of pages of 256 bytes each, with  address hi-bytes represententing the page index. An increment with carry may affect the hi-byte  and may thus result in a crossing of page boundaries, adding an extra cycle to the execution.  Increments without carry do not affect the hi-byte of an address and no page transitions do occur.  Generally, increments of 16-bit addresses include a carry, increments of zeropage addresses don't.
+
+表でXやYで足し算をするところの話です。実際のメモリは256byte毎にページという単位で区切られていて、足し算をするとページ境界を超えてしまうことがあります。通常は繰り上がり有りで、ゼロページの場合は繰り上がりなしで実装してください、ということでしょうか。ということで、X,ind、ind,Y、zpg,X、zpg,Yは繰り上がり無しで実装します。
+
+```c
+u16 tmppc = PC++;
+u16 operand = 0;
+
+#define LLHH(l, h) l + h<<8
+#define CUT(x) (x)&0xFF
+#define LOAD16(x) LLHH(mem[x],mem[x+1])
+switch (b) {
+	case 0: operand = LOAD16(mem[CUT(tmppc+X)]); break;       // X,ind
+	case 1: operand = mem[tmppc]; break;                      // zpg
+	case 2: operand = mem[tmppc]; break;                      // #
+	case 3: operand = LLHH(mem[tmppc], mem[PC++]); break;     // abs
+	case 4: operand = LOAD16(CUT(mem[tmppc]+Y)); break;       // ind,Y
+	case 5: operand = CUT(mem[tmppc]+X); break;               // zpg,X
+	case 6: operand = LLHH(mem[tmppc], mem[PC++]) + X; break; // abs,Y
+	case 7: operand = LLHH(mem[tmppc], mem[PC++]) + X; break; // abs,X
+}
+```
+
+慎重にオペランドを展開して、、
+
+```c
+        switch (c) {
+    case 0:
+        switch (a) {
+            case 5: goto LDY;
+            case 6: goto CPY;
+            case 7: goto CPX;
+        }
+        break;
+    case 1:
+        switch (a) {
+            case 0: goto ORA;
+            case 1: goto AND;
+            case 2: goto EOR;
+            case 3: goto ADC;
+            case 4: goto STA;
+            case 5: goto LDA;
+            case 6: goto CMP;
+            case 7: goto SBC;
+        }
+        break;
+    case 2:
+        switch (a) {
+            case 0: goto ASL;
+            case 1: goto ROL;
+            case 2: goto LSR;
+            case 3: goto ROR;
+            case 4: goto STX;
+            case 5: goto LDX;
+            case 6: goto DEC;
+            case 7: goto INC;
+        }
+        break;
+}
+```
+
+a, cで各命令の処理部分に飛ばします。例外も結構あるのですが、それらは余計な計算をしなくて良いようにアドレス計算の前に個別に飛ばしておきます。
 
 ## Notes
 
