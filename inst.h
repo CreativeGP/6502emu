@@ -32,11 +32,11 @@ goto ret;
 */
 LDY:
 if (adrmode == ADR_IMMEDIATE) {
-    if ((u8)operand < 0) SR.flags.N = 1;
+    if ((i8)operand < 0) SR.flags.N = 1;
     if (operand == 0) SR.flags.Z = 0;
     Y = operand;
 } else {
-    if ((u8)mem[operand] < 0) SR.flags.N = 1;
+    if ((i8)mem[operand] < 0) SR.flags.N = 1;
     if (mem[operand] == 0) SR.flags.Z = 0;
     Y = mem[operand];
 }
@@ -60,13 +60,13 @@ if (adrmode == ADR_IMMEDIATE) {
         SR.flags.C = 1;
         SR.flags.N = 1;
     }
-    if (operand == Y) SR.flags.Z = 0;
+    if (operand == Y) SR.flags.Z = 1;
 } else {
     if (mem[operand] > Y) {
         SR.flags.C = 1;
         SR.flags.N = 1;
     }
-    if (mem[operand] == Y) SR.flags.Z = 0;
+    if (mem[operand] == Y) SR.flags.Z = 1;
 }
 goto ret;
 
@@ -88,17 +88,43 @@ if (adrmode == ADR_IMMEDIATE) {
         SR.flags.C = 1;
         SR.flags.N = 1;
     }
-    if (operand == X) SR.flags.Z = 0;
+    if (operand == X) SR.flags.Z = 1;
 } else {
     if (mem[operand] > X) {
         SR.flags.C = 1;
         SR.flags.N = 1;
     }
-    if (mem[operand] == X) SR.flags.Z = 0;
+    if (mem[operand] == X) SR.flags.Z = 1;
 }
 goto ret;
 
+/*
+  ORA  OR Memory with Accumulator
+
+  A OR M -> A                      N Z C I D V
+                                   + + - - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     ORA #oper     09    2     2
+  zeropage      ORA oper      05    2     3
+  zeropage,X    ORA oper,X    15    2     4
+  absolute      ORA oper      0D    3     4
+  absolute,X    ORA oper,X    1D    3     4*
+  absolute,Y    ORA oper,Y    19    3     4*
+  (indirect,X)  ORA (oper,X)  01    2     6
+  (indirect),Y  ORA (oper),Y  11    2     5*
+*/
 ORA:
+if (adrmode == ADR_IMMEDIATE) {
+    A = A | operand;
+    if (A == 0) SR.flags.Z = 1;
+    if ((i8)A < 0) SR.flags.N = 1;
+} else {
+    A = A | mem[operand];
+    if (A == 0) SR.flags.Z = 1;
+    if ((i8)A < 0) SR.flags.N = 1;
+}
 goto ret;
 
 AND:
