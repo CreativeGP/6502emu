@@ -99,7 +99,7 @@ int main(int argc, char *argv[], char *envp[])
         u16 tmppc = PC++;
 
         switch (op) {
-            case 0x00: goto BRK;
+            case 0x00: adrmode = ADR_IMPLIED; goto BRK;
         }
 
         switch (b) {
@@ -109,9 +109,10 @@ int main(int argc, char *argv[], char *envp[])
             case 3: operand = LLHH(mem[tmppc], mem[PC++]); break;     // abs
             case 4: operand = LOAD16(CUT(mem[tmppc]+Y)); break;       // ind,Y
             case 5: operand = CUT(mem[tmppc]+X); break;               // zpg,X
-            case 6: operand = LLHH(mem[tmppc], mem[PC++]) + X; break; // abs,Y
+            case 6: operand = LLHH(mem[tmppc], mem[PC++]) + Y; break; // abs,Y
             case 7: operand = LLHH(mem[tmppc], mem[PC++]) + X; break; // abs,X
         }
+        adrmode = b;
         
         switch (c) {
             case 0:
