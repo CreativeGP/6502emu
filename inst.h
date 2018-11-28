@@ -42,7 +42,32 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  CPY  Compare Memory and Index Y
+
+  Y - M                            N Z C I D V
+                                   + + + - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     CPY #oper     C0    2     2
+  zeropage      CPY oper      C4    2     3
+  absolute      CPY oper      CC    3     4
+*/
 CPY:
+if (adrmode == ADR_IMMEDIATE) {
+    if (operand > Y) {
+        SR.flags.C = 1;
+        SR.flags.N = 1;
+    }
+    if (operand == Y) SR.flags.Z = 0;
+} else {
+    if (mem[operand] > Y) {
+        SR.flags.C = 1;
+        SR.flags.N = 1;
+    }
+    if (mem[operand] == Y) SR.flags.Z = 0;
+}
 goto ret;
 
 CPX:
