@@ -11,6 +11,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#define LLHH(l, h) ((l) + (h<<8))
+#define CUT(x) (x)&0xFF
+#define LOAD16(x) LLHH(mem[x],mem[x+1])
+
 typedef uint8_t u8;
 typedef int8_t i8;
 typedef uint16_t u16;
@@ -83,7 +87,7 @@ int main(int argc, char *argv[], char *envp[])
         return -1;
     }
 
-    PC = mem[0xFFFD]<<8 + mem[0xFFFC];
+    PC = LOAD16(0xFFFC);
     for (;;)
     {
         u8 op = mem[PC++];
@@ -98,9 +102,6 @@ int main(int argc, char *argv[], char *envp[])
             case 0x00: goto BRK;
         }
 
-#define LLHH(l, h) l + h<<8
-#define CUT(x) (x)&0xFF
-#define LOAD16(x) LLHH(mem[x],mem[x+1])
         switch (b) {
             case 0: operand = LOAD16(mem[CUT(tmppc+X)]); break;       // X,ind
             case 1: operand = mem[tmppc]; break;                      // zpg
