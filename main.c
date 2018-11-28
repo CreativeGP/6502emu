@@ -24,6 +24,21 @@ typedef uint64_t u64;
  */
 u8 *mem = 0;
 
+enum {
+    ADR_ACCUMULATOR= 8,
+    ADR_ABSOLUTE   = 3,
+    ADR_ABSOLUTE_X = 7,
+    ADR_ABSOLUTE_Y = 6,
+    ADR_IMMEDIATE  = 2,
+    ADR_IMPLIED    = 9,
+    ADR_INDIRECT   = 10,
+    ADR_INDIRECT_X = 0,
+    ADR_INDIRECT_Y = 4,
+    ADR_RELATIVE   = 11,
+    ADR_ZEROPAGE   = 1,
+    ADR_ZEROPAGE_X = 5,
+    ADR_ZEROPAGE_Y = 12
+} adrmode;
 const u32 CyclicTasks[] =
 {
 };
