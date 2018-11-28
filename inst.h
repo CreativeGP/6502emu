@@ -156,8 +156,35 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  EOR  Exclusive-OR Memory with Accumulator
+
+  A EOR M -> A                     N Z C I D V
+                                   + + - - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     EOR #oper     49    2     2
+  zeropage      EOR oper      45    2     3
+  zeropage,X    EOR oper,X    55    2     4
+  absolute      EOR oper      4D    3     4
+  absolute,X    EOR oper,X    5D    3     4*
+  absolute,Y    EOR oper,Y    59    3     4*
+  (indirect,X)  EOR (oper,X)  41    2     6
+  (indirect),Y  EOR (oper),Y  51    2     5*
+*/
 EOR:
+if (adrmode == ADR_IMMEDIATE) {
+    A = A ^ operand;
+    if (A == 0) SR.flags.Z = 1;
+    if ((i8)A < 0) SR.flags.N = 1;
+} else {
+    A = A ^ mem[operand];
+    if (A == 0) SR.flags.Z = 1;
+    if ((i8)A < 0) SR.flags.N = 1;
+}
 goto ret;
+
 
 ADC:
 goto ret;
