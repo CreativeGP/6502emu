@@ -70,7 +70,32 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  CPX  Compare Memory and Index X
+
+  X - M                            N Z C I D V
+                                   + + + - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     CPX #oper     E0    2     2
+  zeropage      CPX oper      E4    2     3
+  absolute      CPX oper      EC    3     4
+ */
 CPX:
+if (adrmode == ADR_IMMEDIATE) {
+    if (operand > X) {
+        SR.flags.C = 1;
+        SR.flags.N = 1;
+    }
+    if (operand == X) SR.flags.Z = 0;
+} else {
+    if (mem[operand] > X) {
+        SR.flags.C = 1;
+        SR.flags.N = 1;
+    }
+    if (mem[operand] == X) SR.flags.Z = 0;
+}
 goto ret;
 
 ORA:
