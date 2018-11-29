@@ -377,13 +377,13 @@ goto ret;
 */
 ROL:
 if (adrmode == ADR_ACCUMULATOR) {
-    u8 tmp = (A<<1)&0xFF + SR.flags.C;
+    u8 tmp = CUT(A<<1) + SR.flags.C;
     SR.flags.C = SIGNBIT(A);
     A = tmp;
     if (A == 0)     SR.flags.Z = 1;
     if (SIGNBIT(A)) SR.flags.N = 1;
 } else {
-    u8 tmp = (mem[operand]<<1)&0xFF + SR.flags.C;
+    u8 tmp = CUT(mem[operand]<<1) + SR.flags.C;
     SR.flags.C = SIGNBIT(mem[operand]);
     mem[operand] = tmp;
     if (mem[operand] == 0)     SR.flags.Z = 1;
@@ -489,9 +489,28 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  DEC  Decrement Memory by One
+
+  M - 1 -> M                       N Z C I D V
+                                   + + - - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  zeropage      DEC oper      C6    2     5
+  zeropage,X    DEC oper,X    D6    2     6
+  absolute      DEC oper      CE    3     3
+  absolute,X    DEC oper,X    DE    3     7
+*/
 DEC:
+mem[operand] = CUT(mem[operand]-1);
+SR.flags.N = SIGNBIT(mem[operand]);
+if (mem[operand] == 0) SR.flags.Z = 1;
 goto ret;
 
 INC:
+mem[operand] = CUT(mem[operand]+1);
+SR.flags.N = SIGNBIT(mem[operand]);
+if (mem[operand] == 0) SR.flags.Z = 1;
 goto ret;
 
