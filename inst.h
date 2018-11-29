@@ -417,7 +417,34 @@ if (adrmode == ADR_ACCUMULATOR) {
 }
 goto ret;
 
+/*
+  ROR  Rotate One Bit Right (Memory or Accumulator)
+
+  C -> [76543210] -> C             N Z C I D V
+                                   + + + - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  accumulator   ROR A         6A    1     2
+  zeropage      ROR oper      66    2     5
+  zeropage,X    ROR oper,X    76    2     6
+  absolute      ROR oper      6E    3     6
+  absolute,X    ROR oper,X    7E    3     7
+*/
 ROR:
+if (adrmode == ADR_ACCUMULATOR) {
+    u8 tmp = (A>>1) + (SR.flags.C<<8);
+    SR.flags.C = LSBIT(A);
+    A = tmp;
+    if (A == 0)     SR.flags.Z = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
+} else {
+    u8 tmp = (mem[operand]>>1) + (SR.flags.C<<8);
+    SR.flags.C = LSBIT(mem[operand]);
+    mem[operand] = tmp;
+    if (mem[operand] == 0)     SR.flags.Z = 1;
+    if (SIGNBIT(mem[operand])) SR.flags.N = 1;
+}
 goto ret;
 
 STX:
