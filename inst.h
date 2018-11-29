@@ -348,7 +348,17 @@ goto ret;
   absolute,X    ASL oper,X    1E    3     7
  */
 ASL:
-
+if (adrmode == ADR_ACCUMULATOR) {
+    if (SIGNBIT(A)) SR.flags.C = 1;
+    A <<= 1;
+    if (A == 0)     SR.flags.Z = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
+} else {
+    if (SIGNBIT(mem[operand])) SR.flags.C = 1;
+    mem[operand] <<= 1;
+    if (mem[operand] == 0)     SR.flags.Z = 1;
+    if (SIGNBIT(mem[operand])) SR.flags.N = 1;
+}
 goto ret;
 
 ROL:
