@@ -447,10 +447,46 @@ if (adrmode == ADR_ACCUMULATOR) {
 }
 goto ret;
 
+/*
+  STX  Store Index X in Memory
+
+  X -> M                           N Z C I D V
+                                   - - - - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  zeropage      STX oper      86    2     3
+  zeropage,Y    STX oper,Y    96    2     4
+  absolute      STX oper      8E    3     4
+ */
 STX:
+mem[operand] = X;
 goto ret;
 
+/*
+  LDX  Load Index X with Memory
+
+  M -> X                           N Z C I D V
+                                   + + - - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     LDX #oper     A2    2     2
+  zeropage      LDX oper      A6    2     3
+  zeropage,Y    LDX oper,Y    B6    2     4
+  absolute      LDX oper      AE    3     4
+  absolute,Y    LDX oper,Y    BE    3     4*
+*/
 LDX:
+if (adrmode == ADR_IMMEDIATE) {
+    X = operand;
+    SR.flags.N = SIGNBIT(X);
+    if (X == 0) SR.flags.Z = 1;
+} else {
+    X = mem[operand];
+    SR.flags.N = SIGNBIT(X);
+    if (X == 0) SR.flags.Z = 1;
+}
 goto ret;
 
 DEC:
