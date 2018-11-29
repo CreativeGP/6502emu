@@ -32,11 +32,11 @@ goto ret;
 */
 LDY:
 if (adrmode == ADR_IMMEDIATE) {
-    if ((i8)operand < 0) SR.flags.N = 1;
+    if (SIGNBIT(operand)) SR.flags.N = 1;
     if (operand == 0) SR.flags.Z = 0;
     Y = operand;
 } else {
-    if ((i8)mem[operand] < 0) SR.flags.N = 1;
+    if (SIGNBIT(operand)) SR.flags.N = 1;
     if (mem[operand] == 0) SR.flags.Z = 0;
     Y = mem[operand];
 }
@@ -119,11 +119,11 @@ ORA:
 if (adrmode == ADR_IMMEDIATE) {
     A = A | operand;
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 } else {
     A = A | mem[operand];
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 }
 goto ret;
 
@@ -148,11 +148,11 @@ AND:
 if (adrmode == ADR_IMMEDIATE) {
     A = A & operand;
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 } else {
     A = A & mem[operand];
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 }
 goto ret;
 
@@ -177,11 +177,11 @@ EOR:
 if (adrmode == ADR_IMMEDIATE) {
     A = A ^ operand;
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 } else {
     A = A ^ mem[operand];
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 }
 goto ret;
 
@@ -208,13 +208,13 @@ if (adrmode == ADR_IMMEDIATE) {
     if (tmp != tmp&0xFF) SR.flags.C = 1;
     A = tmp&0xFF;
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 } else {
     u16 tmp = A + mem[operand] + SR.flags.C;
     if (tmp != tmp&0xFF) SR.flags.C = 1;
     A = tmp&0xFF;
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 }
 goto ret;
 
@@ -259,11 +259,11 @@ LDA:
 if (adrmode == ADR_IMMEDIATE) {
     A = operand;
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 } else {
     A = mem[operand];
     if (A == 0) SR.flags.Z = 1;
-    if ((i8)A < 0) SR.flags.N = 1;
+    if (SIGNBIT(A)) SR.flags.N = 1;
 }
 goto ret;
 
@@ -286,19 +286,17 @@ goto ret;
  */
 CMP:
 if (adrmode == ADR_IMMEDIATE) {
-    i8 tmp = A - operand;
-    if (tmp < 0) {
+    if (A < operand) {
         SR.flags.N = 1;
         SR.flags.C = 1;
     }
-    if (tmp == 0) SR.flags.Z = 1;
+    if (A == operand) SR.flags.Z = 1;
 } else {
-    i8 tmp = A - mem[operand];
-    if (tmp < 0) {
+    if (A < mem[operand]) {
         SR.flags.N = 1;
         SR.flags.C = 1;
     }
-    if (tmp == 0) SR.flags.Z = 1;
+    if (A == mem[operand]) SR.flags.Z = 1;
 }
 goto ret;
 
@@ -339,7 +337,22 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  ASL  Shift Left One Bit (Memory or Accumulator)
+
+  C <- [76543210] <- 0             N Z C I D V
+                                   + + + - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  accumulator   ASL A         0A    1     2
+  zeropage      ASL oper      06    2     5
+  zeropage,X    ASL oper,X    16    2     6
+  absolute      ASL oper      0E    3     6
+  absolute,X    ASL oper,X    1E    3     7
+ */
 ASL:
+
 goto ret;
 
 ROL:
