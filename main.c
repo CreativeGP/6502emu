@@ -16,6 +16,7 @@
 #define LOAD16(x) LLHH(mem[x],mem[x+1])
 
 #define SIGNBIT(x) ((x)&0b10000000)
+#define LSBIT(x)   ((x)&0b00000001)
 
 typedef uint8_t u8;
 typedef int8_t i8;

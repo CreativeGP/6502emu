@@ -391,7 +391,30 @@ if (adrmode == ADR_ACCUMULATOR) {
 }
 goto ret;
 
+/*
+  LSR  Shift One Bit Right (Memory or Accumulator)
+
+  0 -> [76543210] -> C             N Z C I D V
+                                   - + + - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  accumulator   LSR A         4A    1     2
+  zeropage      LSR oper      46    2     5
+  zeropage,X    LSR oper,X    56    2     6
+  absolute      LSR oper      4E    3     6
+  absolute,X    LSR oper,X    5E    3     7
+*/
 LSR:
+if (adrmode == ADR_ACCUMULATOR) {
+    SR.flags.C = LSBIT(A);
+    A >>= 1;
+    if (A == 0)     SR.flags.Z = 1;
+} else {
+    SR.flags.C = LSBIT(mem[operand]);
+    mem[operand] >>= 1;
+    if (mem[operand] == 0)     SR.flags.Z = 1;
+}
 goto ret;
 
 ROR:
