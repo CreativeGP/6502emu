@@ -218,7 +218,24 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  STA  Store Accumulator in Memory
+
+  A -> M                           N Z C I D V
+                                   - - - - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  zeropage      STA oper      85    2     3
+  zeropage,X    STA oper,X    95    2     4
+  absolute      STA oper      8D    3     4
+  absolute,X    STA oper,X    9D    3     5
+  absolute,Y    STA oper,Y    99    3     5
+  (indirect,X)  STA (oper,X)  81    2     6
+  (indirect),Y  STA (oper),Y  91    2     6
+ */
 STA:
+mem[operand] = A;
 goto ret;
 
 LDA:
