@@ -302,7 +302,41 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  SBC  Subtract Memory from Accumulator with Borrow
+
+  A - M - C -> A                   N Z C I D V
+                                   + + + - - +
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     SBC #oper     E9    2     2
+  zeropage      SBC oper      E5    2     3
+  zeropage,X    SBC oper,X    F5    2     4
+  absolute      SBC oper      ED    3     4
+  absolute,X    SBC oper,X    FD    3     4*
+  absolute,Y    SBC oper,Y    F9    3     4*
+  (indirect,X)  SBC (oper,X)  E1    2     6
+  (indirect),Y  SBC (oper),Y  F1    2     5*
+ */
 SBC:
+if (adrmode == ADR_IMMEDIATE) {
+    i16 tmp = A - operand - SR.flags.C;
+    if (tmp < 0) {
+        SR.flags.C = 1;
+        SR.flags.N = 1;
+    }
+    A = tmp&0xFF;
+    if (A == 0) SR.flags.Z = 1;
+} else {
+    i16 tmp = A - mem[operand] - SR.flags.C;
+    if (tmp < 0) {
+        SR.flags.C = 1;
+        SR.flags.N = 1;
+    }
+    A = tmp&0xFF;
+    if (A == 0) SR.flags.Z = 1;
+}
 goto ret;
 
 ASL:
