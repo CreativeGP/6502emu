@@ -185,8 +185,37 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  ADC  Add Memory to Accumulator with Carry
 
+  A + M + C -> A, C                N Z C I D V
+                                   + + + - - +
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     ADC #oper     69    2     2
+  zeropage      ADC oper      65    2     3
+  zeropage,X    ADC oper,X    75    2     4
+  absolute      ADC oper      6D    3     4
+  absolute,X    ADC oper,X    7D    3     4*
+  absolute,Y    ADC oper,Y    79    3     4*
+  (indirect,X)  ADC (oper,X)  61    2     6
+  (indirect),Y  ADC (oper),Y  71    2     5*
+ */
 ADC:
+if (adrmode == ADR_IMMEDIATE) {
+    u16 tmp = A + operand + SR.flags.C;
+    if (tmp != tmp&0xFF) SR.flags.C = 1;
+    A = tmp&0xFF;
+    if (A == 0) SR.flags.Z = 1;
+    if ((i8)A < 0) SR.flags.N = 1;
+} else {
+    u16 tmp = A + mem[operand] + SR.flags.C;
+    if (tmp != tmp&0xFF) SR.flags.C = 1;
+    A = tmp&0xFF;
+    if (A == 0) SR.flags.Z = 1;
+    if ((i8)A < 0) SR.flags.N = 1;
+}
 goto ret;
 
 STA:
