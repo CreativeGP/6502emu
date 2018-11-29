@@ -267,7 +267,39 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+/*
+  CMP  Compare Memory with Accumulator
+
+  A - M                            N Z C I D V
+                                   + + + - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     CMP #oper     C9    2     2
+  zeropage      CMP oper      C5    2     3
+  zeropage,X    CMP oper,X    D5    2     4
+  absolute      CMP oper      CD    3     4
+  absolute,X    CMP oper,X    DD    3     4*
+  absolute,Y    CMP oper,Y    D9    3     4*
+  (indirect,X)  CMP (oper,X)  C1    2     6
+  (indirect),Y  CMP (oper),Y  D1    2     5*
+ */
 CMP:
+if (adrmode == ADR_IMMEDIATE) {
+    i8 tmp = A - operand;
+    if (tmp < 0) {
+        SR.flags.N = 1;
+        SR.flags.C = 1;
+    }
+    if (tmp == 0) SR.flags.Z = 1;
+} else {
+    i8 tmp = A - mem[operand];
+    if (tmp < 0) {
+        SR.flags.N = 1;
+        SR.flags.C = 1;
+    }
+    if (tmp == 0) SR.flags.Z = 1;
+}
 goto ret;
 
 SBC:
