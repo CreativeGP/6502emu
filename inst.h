@@ -153,6 +153,18 @@ CLV:
 SR.flags.O = 0;
 goto ret;
 
+SEC:
+SR.flags.C = 1;
+goto ret;
+
+SED:
+SR.flags.D = 1;
+goto ret;
+
+SEI:
+SR.flags.I = 1;
+goto ret;
+
 
 
 /*
