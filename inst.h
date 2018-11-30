@@ -34,6 +34,19 @@ PLP:
 SR.P = pull();
 goto ret;
 
+/* Return from interrupt */
+RTI:
+SR.P = pull();
+PC = pull();
+goto ret;
+
+/* Return from subroutine */
+RTI:
+PC = pull();
+PC = CUT(PC+1);
+goto ret;
+
+
 /*
   JSR  Jump to New Location Saving Return Address
 
