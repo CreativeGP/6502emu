@@ -46,6 +46,21 @@ push(PC+2);
 PC = LLHH(PC+1, PC+2);
 goto ret;
 
+/*
+  BCC  Branch on Carry Clear
+
+  branch on C = 0                  N Z C I D V
+                                   - - - - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  relative      BCC oper      90    2     2**
+*/
+BCC:
+if (SR.flags.C == 0)
+    PC = (u16)((i16)PC + (i8)operand);
+goto ret;
+
 
 /*
   LDY  Load Index Y with Memory
