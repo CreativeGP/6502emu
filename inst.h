@@ -16,6 +16,10 @@ ExitRequired = 1;
 //interrupt
 goto ret;
 
+PHA:
+push(A);
+goto ret;
+
 PHP:
 push(SR.P);
 goto ret;
