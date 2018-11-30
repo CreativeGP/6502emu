@@ -66,6 +66,11 @@ if (SR.flags.C == 1)
     PC = (u16)((i16)PC + (i8)operand);
 goto ret;
 
+BEQ:
+if (SR.flags.Z == 1)
+    PC = (u16)((i16)PC + (i8)operand);
+goto ret;
+
 
 
 /*
