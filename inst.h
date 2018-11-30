@@ -71,6 +71,31 @@ if (SR.flags.Z == 1)
     PC = (u16)((i16)PC + (i8)operand);
 goto ret;
 
+BMI:
+if (SR.flags.N == 1)
+    PC = (u16)((i16)PC + (i8)operand);
+goto ret;
+
+BPL:
+if (SR.flags.N == 0)
+    PC = (u16)((i16)PC + (i8)operand);
+goto ret;
+
+BNE:
+if (SR.flags.Z == 0)
+    PC = (u16)((i16)PC + (i8)operand);
+goto ret;
+
+BVC:
+if (SR.flags.O == 0)
+    PC = (u16)((i16)PC + (i8)operand);
+goto ret;
+
+BVS:
+if (SR.flags.O == 1)
+    PC = (u16)((i16)PC + (i8)operand);
+goto ret;
+
 /*
   BIT  Test Bits in Memory with Accumulator
 
