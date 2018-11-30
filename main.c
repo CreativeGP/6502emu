@@ -97,7 +97,7 @@ union
 u16 operand = 0;
 
 inline void push(u8 data);
-inline u8 pop();
+inline u8 pull();
 
 
 int main(int argc, char *argv[], char *envp[])
@@ -257,7 +257,7 @@ inline void push(u8 data)
     mem[0x0100 + S--] = data;
 }
 
-inline u8 pop()
+inline u8 pull()
 {
     return mem[0x0100 + S++];
 }

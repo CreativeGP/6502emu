@@ -41,7 +41,7 @@ PC = pull();
 goto ret;
 
 /* Return from subroutine */
-RTI:
+RTS:
 PC = pull();
 PC = CUT(PC+1);
 goto ret;
@@ -190,7 +190,7 @@ STX:
 mem[operand] = X;
 goto ret;
 
-STX:
+STY:
 mem[operand] = Y;
 goto ret;
 
@@ -236,7 +236,7 @@ goto ret;
   LDX  Load Index X with Memory
 
   M -> X                           N Z C I D V
-                                   + + - - - -
+  + + - - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -262,7 +262,7 @@ goto ret;
   LDA  Load Accumulator with Memory
 
   M -> A                           N Z C I D V
-                                   + + - - - -
+  + + - - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -274,7 +274,7 @@ goto ret;
   absolute,Y    LDA oper,Y    B9    3     4*
   (indirect,X)  LDA (oper,X)  A1    2     6
   (indirect),Y  LDA (oper),Y  B1    2     5*
- */
+*/
 LDA:
 if (adrmode == ADR_IMMEDIATE) {
     A = operand;
@@ -291,7 +291,7 @@ goto ret;
   LDY  Load Index Y with Memory
   
   M -> Y                           N Z C I D V
-                                   + + - - - -
+  + + - - - -
   
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -319,7 +319,7 @@ goto ret;
   CPY  Compare Memory and Index Y
 
   Y - M                            N Z C I D V
-                                   + + + - - -
+  + + + - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -347,14 +347,14 @@ goto ret;
   CPX  Compare Memory and Index X
 
   X - M                            N Z C I D V
-                                   + + + - - -
+  + + + - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
   immidiate     CPX #oper     E0    2     2
   zeropage      CPX oper      E4    2     3
   absolute      CPX oper      EC    3     4
- */
+*/
 CPX:
 if (adrmode == ADR_IMMEDIATE) {
     if (operand > X) {
@@ -375,7 +375,7 @@ goto ret;
   ORA  OR Memory with Accumulator
 
   A OR M -> A                      N Z C I D V
-                                   + + - - - -
+  + + - - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -404,7 +404,7 @@ goto ret;
   AND  AND Memory with Accumulator
 
   A AND M -> A                     N Z C I D V
-                                   + + - - - -
+  + + - - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -416,7 +416,7 @@ goto ret;
   absolute,Y    AND oper,Y    39    3     4*
   (indirect,X)  AND (oper,X)  21    2     6
   (indirect),Y  AND (oper),Y  31    2     5*
- */
+*/
 AND:
 if (adrmode == ADR_IMMEDIATE) {
     A = A & operand;
@@ -433,7 +433,7 @@ goto ret;
   EOR  Exclusive-OR Memory with Accumulator
 
   A EOR M -> A                     N Z C I D V
-                                   + + - - - -
+  + + - - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -462,7 +462,7 @@ goto ret;
   ADC  Add Memory to Accumulator with Carry
 
   A + M + C -> A, C                N Z C I D V
-                                   + + + - - +
+  + + + - - +
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -474,7 +474,7 @@ goto ret;
   absolute,Y    ADC oper,Y    79    3     4*
   (indirect,X)  ADC (oper,X)  61    2     6
   (indirect),Y  ADC (oper),Y  71    2     5*
- */
+*/
 ADC:
 if (adrmode == ADR_IMMEDIATE) {
     u16 tmp = A + operand + SR.flags.C;
@@ -495,7 +495,7 @@ goto ret;
   CMP  Compare Memory with Accumulator
 
   A - M                            N Z C I D V
-                                   + + + - - -
+  + + + - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -507,7 +507,7 @@ goto ret;
   absolute,Y    CMP oper,Y    D9    3     4*
   (indirect,X)  CMP (oper,X)  C1    2     6
   (indirect),Y  CMP (oper),Y  D1    2     5*
- */
+*/
 CMP:
 if (adrmode == ADR_IMMEDIATE) {
     if (A < operand) {
@@ -524,45 +524,12 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
-CPX:
-if (adrmode == ADR_IMMEDIATE) {
-    if (X < operand) {
-        SR.flags.N = 1;
-        SR.flags.C = 1;
-    }
-    if (X == operand) SR.flags.Z = 1;
-} else {
-    if (X < mem[operand]) {
-        SR.flags.N = 1;
-        SR.flags.C = 1;
-    }
-    if (X == mem[operand]) SR.flags.Z = 1;
-}
-goto ret;
-
-CPX:
-if (adrmode == ADR_IMMEDIATE) {
-    if (Y < operand) {
-        SR.flags.N = 1;
-        SR.flags.C = 1;
-    }
-    if (Y == operand) SR.flags.Z = 1;
-} else {
-    if (Y < mem[operand]) {
-        SR.flags.N = 1;
-        SR.flags.C = 1;
-    }
-    if (Y == mem[operand]) SR.flags.Z = 1;
-}
-goto ret;
-
-
 
 /*
   SBC  Subtract Memory from Accumulator with Borrow
 
   A - M - C -> A                   N Z C I D V
-                                   + + + - - +
+  + + + - - +
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -574,19 +541,21 @@ goto ret;
   absolute,Y    SBC oper,Y    F9    3     4*
   (indirect,X)  SBC (oper,X)  E1    2     6
   (indirect),Y  SBC (oper),Y  F1    2     5*
- */
+*/
 SBC:
-i16 tmp = 0;
-if (adrmode == ADR_IMMEDIATE) {
-    tmp = A - operand - SR.flags.C;
-} else {
-    tmp = A - mem[operand] - SR.flags.C;
+{
+    i16 tmp = 0;
+    if (adrmode == ADR_IMMEDIATE) {
+        tmp = A - operand - SR.flags.C;
+    } else {
+        tmp = A - mem[operand] - SR.flags.C;
+    }
+    if (SIGNBIT(A) != SIGNBIT(tmp&0xFF)) SR.flags.O = 1;
+    A = tmp&0xFF;
+    if (SIGNBIT(A)) SR.flags.N = 1;
+    if (A == 0)     SR.flags.Z = 1;
+    if (tmp != A)   SR.flags.C = 1;
 }
-if (SIGNBIT(A) != SIGNBIT(tmp&0xFF)) SR.flags.O = 1;
-A = tmp&0xFF;
-if (SIGNBIT(A)) SR.flags.N = 1;
-if (A == 0)     SR.flags.Z = 1;
-if (tmp != A)   SR.flags.C = 1;
 goto ret;
 
 /*
