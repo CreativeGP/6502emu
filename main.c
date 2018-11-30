@@ -15,7 +15,7 @@
 #define CUT(x) (x)&0xFF
 #define LOAD16(x) LLHH(mem[x],mem[x+1])
 
-#define SIGNBIT(x) ((x)&0b10000000)
+#define SIGNBIT(x) (((x)&0b10000000) >> 7)
 #define LSBIT(x)   ((x)&0b00000001)
 
 typedef uint8_t u8;
