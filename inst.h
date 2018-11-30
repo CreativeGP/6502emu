@@ -116,6 +116,22 @@ SR.flags.N = (mem[operand] & 0b10000000) >> 7;
 SR.flags.O = (mem[operand] & 0b01000000) >> 6;
 goto ret;
 
+CLC:
+SR.flags.C = 0;
+goto ret;
+
+CLD:
+SR.flags.D = 0;
+goto ret;
+
+CLI:
+SR.flags.I = 0;
+goto ret;
+
+CLV:
+SR.flags.O = 0;
+goto ret;
+
 
 
 /*
