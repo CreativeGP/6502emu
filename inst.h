@@ -46,6 +46,10 @@ push(PC+2);
 PC = LLHH(PC+1, PC+2);
 goto ret;
 
+JMP:
+PC = LLHH(PC+1, PC+2);
+goto ret;
+
 /*
   BCC  Branch on Carry Clear
 
