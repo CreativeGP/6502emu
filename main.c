@@ -74,7 +74,7 @@ const u8 Cycles[] =
 };
 u8 ExitRequired = 0;
 enum {InterruptPeriod = 100};
-u64 Counter = InterruptPeriod;
+i64 Counter = InterruptPeriod;
 
 u8 A=0, X=0, Y=0, S=0xFF;
 u16 PC=0;
@@ -96,8 +96,8 @@ union
 
 u16 operand = 0;
 
-inline void push(u8 data);
-inline u8 pull();
+static inline void push(u8 data);
+static inline u8 pull();
 
 
 int main(int argc, char *argv[], char *envp[])
@@ -251,13 +251,13 @@ ret:
     return 0;
 }
 
-inline void push(u8 data)
+static inline void push(u8 data)
 {
 //    if (S == 0) Stack Overflow!
     mem[0x0100 + S--] = data;
 }
 
-inline u8 pull()
+static inline u8 pull()
 {
     return mem[0x0100 + S++];
 }

@@ -1,5 +1,5 @@
 6502: main.c
-	gcc main.c -o 6502 -O3 -fomit-frame-pointer
+	gcc main.c -o 6502 -g3 # -O3 -fomit-frame-pointer
 
 run: 6502
 	./6502
