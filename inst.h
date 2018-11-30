@@ -31,6 +31,23 @@ SR.P = pull();
 goto ret;
 
 /*
+  JSR  Jump to New Location Saving Return Address
+
+  push (PC+2),                     N Z C I D V
+  (PC+1) -> PCL                    - - - - - -
+  (PC+2) -> PCH
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  absolute      JSR oper      20    3     6
+ */
+JSR:
+push(PC+2);
+PC = LLHH(PC+1, PC+2);
+goto ret;
+
+
+/*
   LDY  Load Index Y with Memory
   
   M -> Y                           N Z C I D V
