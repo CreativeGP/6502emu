@@ -115,14 +115,80 @@ int main(int argc, char *argv[], char *envp[])
         u8 op = mem[PC++];
         Counter -= Cycles[op];
 
+#define ABS_OP operand = LLHH(mem[PC++], mem[PC++])
+#define ABSX_OP operand = LLHH(mem[PC++], mem[PC++])+X
+#define REL_OP operand = mem[PC++]
+#define ZPG_OP operand = mem[PC++]
+#define IMM_OP operand = mem[PC++]
+#define ZPGX_OP operand = CUT(mem[PC++]+X)
+#define IND_OP i8 tmp = mem[PC++]; operand = LOAD16(tmp)
+
+        switch (op) {
+            case 0x00: { adrmode = ADR_IMPLIED;    goto BRK; }
+            case 0x98: { adrmode = ADR_IMPLIED;    goto TYA; }
+            case 0xEA: { adrmode = ADR_IMPLIED;    goto NOP; }
+            case 0xCA: { adrmode = ADR_IMPLIED;    goto DEX; }
+            case 0xBA: { adrmode = ADR_IMPLIED;    goto TSX; }
+            case 0xAA: { adrmode = ADR_IMPLIED;    goto TAX; }
+            case 0x9A: { adrmode = ADR_IMPLIED;    goto TXS; }
+            case 0x8A: { adrmode = ADR_IMPLIED;    goto TXA; }
+            case 0xF8: { adrmode = ADR_IMPLIED;    goto SED; }
+            case 0xE8: { adrmode = ADR_IMPLIED;    goto INX; }
+            case 0xD8: { adrmode = ADR_IMPLIED;    goto CLD; }
+            case 0xC8: { adrmode = ADR_IMPLIED;    goto INY; }
+            case 0xB8: { adrmode = ADR_IMPLIED;    goto CLV; }
+            case 0xA8: { adrmode = ADR_IMPLIED;    goto TAY; }
+            case 0x18: { adrmode = ADR_IMPLIED;    goto CLC; }
+            case 0x88: { adrmode = ADR_IMPLIED;    goto DEY; }
+            case 0x78: { adrmode = ADR_IMPLIED;    goto SEI; }
+            case 0x68: { adrmode = ADR_IMPLIED;    goto PLA; }
+            case 0x60: { adrmode = ADR_IMPLIED;    goto RTS; }
+            case 0x58: { adrmode = ADR_IMPLIED;    goto CLI; }
+            case 0x48: { adrmode = ADR_IMPLIED;    goto PHA; }
+            case 0x40: { adrmode = ADR_IMPLIED;    goto RTI; }
+            case 0x38: { adrmode = ADR_IMPLIED;    goto SEC; }
+            case 0x28: { adrmode = ADR_IMPLIED;    goto PLP; }
+            case 0x08: { adrmode = ADR_IMPLIED;    goto PHP; }
+
+            case 0x90: { REL_OP; adrmode = ADR_RELATIVE;    goto BCC; }
+            case 0x30: { REL_OP; adrmode = ADR_RELATIVE;    goto BMI; }
+            case 0xB0: { REL_OP; adrmode = ADR_RELATIVE;    goto BCS; }
+            case 0xF0: { REL_OP; adrmode = ADR_RELATIVE;    goto BEQ; }
+            case 0x70: { REL_OP; adrmode = ADR_RELATIVE;    goto BVS; }
+            case 0x10: { REL_OP; adrmode = ADR_RELATIVE;    goto BPL; }
+            case 0xD0: { REL_OP; adrmode = ADR_RELATIVE;    goto BNE; }
+            case 0x50: { REL_OP; adrmode = ADR_RELATIVE;    goto BVC; }
+
+            case 0x2C: { ABS_OP; adrmode = ADR_ABSOLUTE;    goto BIT; }
+            case 0x8C: { ABS_OP; adrmode = ADR_ABSOLUTE;    goto STY; }
+            case 0xAC: { ABS_OP; adrmode = ADR_ABSOLUTE;    goto LDY; }
+            case 0x20: { ABS_OP; adrmode = ADR_ABSOLUTE;    goto JSR; }
+            case 0xEC: { ABS_OP; adrmode = ADR_ABSOLUTE;    goto CPX; }
+            case 0x4C: { ABS_OP; adrmode = ADR_ABSOLUTE;    goto JMP; }
+            case 0xCC: { ABS_OP; adrmode = ADR_ABSOLUTE;    goto CPY; }
+
+            case 0xBC: { ABSX_OP; adrmode = ADR_ABSOLUTE_X;    goto LDY; }
+
+            case 0x24: { ZPG_OP; adrmode = ADR_ZEROPAGE;    goto BIT; }
+            case 0x84: { ZPG_OP; adrmode = ADR_ZEROPAGE;    goto STY; }
+            case 0xA4: { ZPG_OP; adrmode = ADR_ZEROPAGE;    goto LDY; }
+            case 0xC4: { ZPG_OP; adrmode = ADR_ZEROPAGE;    goto CPY; }
+            case 0xE4: { ZPG_OP; adrmode = ADR_ZEROPAGE;    goto CPX; }
+
+            case 0x94: { ZPGX_OP; adrmode = ADR_ZEROPAGE_X;    goto STY; }
+            case 0xB4: { ZPGX_OP; adrmode = ADR_ZEROPAGE_X;    goto LDY; }
+
+            case 0x6C: { IND_OP; adrmode = ADR_INDIRECT;      goto JMP; }
+
+            case 0xA0: { IMM_OP; adrmode = ADR_IMMEDIATE;    goto LDY; }
+            case 0xC0: { IMM_OP; adrmode = ADR_IMMEDIATE;    goto CPY; }
+            case 0xE0: { IMM_OP; adrmode = ADR_IMMEDIATE;    goto CPX; }
+        }
+
         u8 a = (op & 0b11100000) >> 5;
         u8 b = (op &    0b11100) >> 2;
         u8 c = (op &       0b11);
         u16 tmppc = PC++;
-
-        switch (op) {
-            case 0x00: adrmode = ADR_IMPLIED; goto BRK;
-        }
 
         switch (b) {
             case 0: operand = LOAD16(mem[CUT(tmppc+X)]); break;       // X,ind
