@@ -71,6 +71,26 @@ if (SR.flags.Z == 1)
     PC = (u16)((i16)PC + (i8)operand);
 goto ret;
 
+/*
+  BIT  Test Bits in Memory with Accumulator
+
+  bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
+  the zeroflag is set to the result of operand AND accumulator.
+
+  A AND M, M7 -> N, M6 -> V        N Z C I D V
+                                  M7 + - - - M6
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  zeropage      BIT oper      24    2     3
+  absolute      BIT oper      2C    3     4
+*/
+BIT:
+if (A & mem[operand] == 0) SR.flags.Z = 0;
+SR.flags.N = (mem[operand] & 0b10000000) >> 7;
+SR.flags.O = (mem[operand] & 0b01000000) >> 6;
+goto ret;
+
 
 
 /*
