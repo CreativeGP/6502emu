@@ -139,32 +139,6 @@ goto ret;
 
 
 /*
-  LDY  Load Index Y with Memory
-  
-  M -> Y                           N Z C I D V
-                                   + + - - - -
-  
-  addressing    assembler    opc  bytes  cyles
-  --------------------------------------------
-  immidiate     LDY #oper     A0    2     2
-  zeropage      LDY oper      A4    2     3
-  zeropage,X    LDY oper,X    B4    2     4
-  absolute      LDY oper      AC    3     4
-  absolute,X    LDY oper,X    BC    3     4*
-*/
-LDY:
-if (adrmode == ADR_IMMEDIATE) {
-    if (SIGNBIT(operand)) SR.flags.N = 1;
-    if (operand == 0) SR.flags.Z = 0;
-    Y = operand;
-} else {
-    if (SIGNBIT(operand)) SR.flags.N = 1;
-    if (mem[operand] == 0) SR.flags.Z = 0;
-    Y = mem[operand];
-}
-goto ret;
-
-/*
   CPY  Compare Memory and Index Y
 
   Y - M                            N Z C I D V
@@ -361,6 +335,32 @@ mem[operand] = A;
 goto ret;
 
 /*
+  LDX  Load Index X with Memory
+
+  M -> X                           N Z C I D V
+                                   + + - - - -
+
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     LDX #oper     A2    2     2
+  zeropage      LDX oper      A6    2     3
+  zeropage,Y    LDX oper,Y    B6    2     4
+  absolute      LDX oper      AE    3     4
+  absolute,Y    LDX oper,Y    BE    3     4*
+*/
+LDX:
+if (adrmode == ADR_IMMEDIATE) {
+    X = operand;
+    SR.flags.N = SIGNBIT(X);
+    if (X == 0) SR.flags.Z = 1;
+} else {
+    X = mem[operand];
+    SR.flags.N = SIGNBIT(X);
+    if (X == 0) SR.flags.Z = 1;
+}
+goto ret;
+
+/*
   LDA  Load Accumulator with Memory
 
   M -> A                           N Z C I D V
@@ -386,6 +386,32 @@ if (adrmode == ADR_IMMEDIATE) {
     A = mem[operand];
     if (A == 0) SR.flags.Z = 1;
     if (SIGNBIT(A)) SR.flags.N = 1;
+}
+goto ret;
+
+/*
+  LDY  Load Index Y with Memory
+  
+  M -> Y                           N Z C I D V
+                                   + + - - - -
+  
+  addressing    assembler    opc  bytes  cyles
+  --------------------------------------------
+  immidiate     LDY #oper     A0    2     2
+  zeropage      LDY oper      A4    2     3
+  zeropage,X    LDY oper,X    B4    2     4
+  absolute      LDY oper      AC    3     4
+  absolute,X    LDY oper,X    BC    3     4*
+*/
+LDY:
+if (adrmode == ADR_IMMEDIATE) {
+    if (SIGNBIT(operand)) SR.flags.N = 1;
+    if (operand == 0) SR.flags.Z = 0;
+    Y = operand;
+} else {
+    if (SIGNBIT(operand)) SR.flags.N = 1;
+    if (mem[operand] == 0) SR.flags.Z = 0;
+    Y = mem[operand];
 }
 goto ret;
 
@@ -620,32 +646,6 @@ mem[operand] = X;
 goto ret;
 
 /*
-  LDX  Load Index X with Memory
-
-  M -> X                           N Z C I D V
-                                   + + - - - -
-
-  addressing    assembler    opc  bytes  cyles
-  --------------------------------------------
-  immidiate     LDX #oper     A2    2     2
-  zeropage      LDX oper      A6    2     3
-  zeropage,Y    LDX oper,Y    B6    2     4
-  absolute      LDX oper      AE    3     4
-  absolute,Y    LDX oper,Y    BE    3     4*
-*/
-LDX:
-if (adrmode == ADR_IMMEDIATE) {
-    X = operand;
-    SR.flags.N = SIGNBIT(X);
-    if (X == 0) SR.flags.Z = 1;
-} else {
-    X = mem[operand];
-    SR.flags.N = SIGNBIT(X);
-    if (X == 0) SR.flags.Z = 1;
-}
-goto ret;
-
-/*
   DEC  Decrement Memory by One
 
   M - 1 -> M                       N Z C I D V
@@ -692,3 +692,5 @@ goto ret;
 
 
 
+NOP:
+goto ret;
