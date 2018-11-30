@@ -675,4 +675,16 @@ mem[operand] = CUT(mem[operand]+1);
 SR.flags.N = SIGNBIT(mem[operand]);
 if (mem[operand] == 0) SR.flags.Z = 1;
 goto ret;
+INX:
+X = CUT(X+1);
+SR.flags.N = SIGNBIT(X);
+if (X == 0) SR.flags.Z = 1;
+goto ret;
+INY:
+Y = CUT(Y+1);
+SR.flags.N = SIGNBIT(Y);
+if (Y == 0) SR.flags.Z = 1;
+goto ret;
+
+
 
