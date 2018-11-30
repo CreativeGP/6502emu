@@ -517,19 +517,17 @@ goto ret;
   (indirect),Y  SBC (oper),Y  F1    2     5*
  */
 SBC:
+i16 tmp = 0;
 if (adrmode == ADR_IMMEDIATE) {
-    i16 tmp = A - operand - SR.flags.C;
-    A = tmp&0xFF;
-    if (SIGNBIT(A)) SR.flags.N = 1;
-    if (A == 0)     SR.flags.Z = 1;
-    if (tmp != A)   SR.flags.C = 1;
+    tmp = A - operand - SR.flags.C;
 } else {
-    i16 tmp = A - mem[operand] - SR.flags.C;
-    A = tmp&0xFF;
-    if (SIGNBIT(A)) SR.flags.N = 1;
-    if (A == 0)     SR.flags.Z = 1;
-    if (tmp != A)   SR.flags.C = 1;
+    tmp = A - mem[operand] - SR.flags.C;
 }
+if (SIGNBIT(A) != SIGNBIT(tmp&0xFF)) SR.flags.O = 1;
+A = tmp&0xFF;
+if (SIGNBIT(A)) SR.flags.N = 1;
+if (A == 0)     SR.flags.Z = 1;
+if (tmp != A)   SR.flags.C = 1;
 goto ret;
 
 /*
