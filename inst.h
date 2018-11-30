@@ -61,6 +61,12 @@ if (SR.flags.C == 0)
     PC = (u16)((i16)PC + (i8)operand);
 goto ret;
 
+BCS:
+if (SR.flags.C == 1)
+    PC = (u16)((i16)PC + (i8)operand);
+goto ret;
+
+
 
 /*
   LDY  Load Index Y with Memory
