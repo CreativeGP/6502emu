@@ -16,6 +16,16 @@ ExitRequired = 1;
 //interrupt
 goto ret;
 
+PHP:
+push(SR.P);
+goto ret;
+
+PLA:
+A = pull();
+SR.flags.N = SIGNBIT(A);
+if (A == 0) SR.flags.N = 1; 
+goto ret;
+
 /*
   LDY  Load Index Y with Memory
   
