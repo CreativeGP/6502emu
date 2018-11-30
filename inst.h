@@ -418,6 +418,40 @@ if (adrmode == ADR_IMMEDIATE) {
 }
 goto ret;
 
+CPX:
+if (adrmode == ADR_IMMEDIATE) {
+    if (X < operand) {
+        SR.flags.N = 1;
+        SR.flags.C = 1;
+    }
+    if (X == operand) SR.flags.Z = 1;
+} else {
+    if (X < mem[operand]) {
+        SR.flags.N = 1;
+        SR.flags.C = 1;
+    }
+    if (X == mem[operand]) SR.flags.Z = 1;
+}
+goto ret;
+
+CPX:
+if (adrmode == ADR_IMMEDIATE) {
+    if (Y < operand) {
+        SR.flags.N = 1;
+        SR.flags.C = 1;
+    }
+    if (Y == operand) SR.flags.Z = 1;
+} else {
+    if (Y < mem[operand]) {
+        SR.flags.N = 1;
+        SR.flags.C = 1;
+    }
+    if (Y == mem[operand]) SR.flags.Z = 1;
+}
+goto ret;
+
+
+
 /*
   SBC  Subtract Memory from Accumulator with Borrow
 
