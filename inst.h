@@ -26,6 +26,10 @@ SR.flags.N = SIGNBIT(A);
 if (A == 0) SR.flags.N = 1; 
 goto ret;
 
+PLP:
+SR.P = pull();
+goto ret;
+
 /*
   LDY  Load Index Y with Memory
   
