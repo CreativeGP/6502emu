@@ -82,6 +82,7 @@ for line in f:
     elif oper[0] == "$" and len(oper) == 5:
         adrmode = ABSOLUTE
         num = oper[1:5]
+        num = num[2:] + num[:2]
 
     elif oper[0] == "(" and len(oper) == 7 and oper[5] == "X":
         adrmode = INDIRECT_X
@@ -92,6 +93,7 @@ for line in f:
     elif oper[0] == "(" and len(oper) == 7:
         adrmode = INDIRECT
         num = oper[2:6]
+        num = num[2:] + num[:2]
 
     if adrmode == RELATIVE:
         if inst == "BCC":
