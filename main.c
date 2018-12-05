@@ -150,6 +150,11 @@ int main(int argc, char *argv[], char *envp[])
             case 0x28: { adrmode = ADR_IMPLIED;    goto PLP; }
             case 0x08: { adrmode = ADR_IMPLIED;    goto PHP; }
 
+            case 0x0A: { adrmode = ADR_ACCUMULATOR;    goto ASL; }
+            case 0x2A: { adrmode = ADR_ACCUMULATOR;    goto ROL; }
+            case 0x4A: { adrmode = ADR_ACCUMULATOR;    goto LSR; }
+            case 0x6A: { adrmode = ADR_ACCUMULATOR;    goto ROR; }
+
             case 0x90: { REL_OP; adrmode = ADR_RELATIVE;    goto BCC; }
             case 0x30: { REL_OP; adrmode = ADR_RELATIVE;    goto BMI; }
             case 0xB0: { REL_OP; adrmode = ADR_RELATIVE;    goto BCS; }
