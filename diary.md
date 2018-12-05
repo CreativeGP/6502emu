@@ -191,21 +191,21 @@ u8 c = (op &       0b11);
 
 bによってこのように決まっています。また、各展開方法は以下のような感じです。（レジスタ名だけを記述しているところは、レジスタ名の値を表しています）
 
-| 識別子 | 名前                 | アセンブリ | 意味                                                      |
-| ------ | -------------------- | ---------- | --------------------------------------------------------- |
-| A      | Accumulator          | A          | 値Aがオペランド                                           |
-| abs    | absolute             | $LLHH      | *$LLHH*番地がオペランド                                   |
-| abs,X  | absolute, X-indexed  | $LLHH,X    | *$LLHH+X*番地がオペランド                                 |
-| abs,Y  | absolute, Y-indexed  | $LLHH,Y    | *$LLHH+Y*番地がオペランド                                 |
-| #      | immediate            | #$BB       | 値BBがオペランド                                          |
-| impl   | implied              |            | オペランド無し                                            |
-| ind    | indirect             | ($LLHH)    | *$LLHH番地と隣の値を***16-bitアドレスとして**オペランドに |
-| X,ind  | X-indexed, indirect  | ($LL,X)    | *$00LL+X番地の値を***16-bitアドレスとして**オペランドに   |
-| ind,Y  | indirect, Y-indexed  | ($LL),Y    | *$00LL番地の値**+Y**を*16-bitアドレスとしてオペランドに   |
-| rel    | relative             | $BB        | 分岐先は$BB+PC                                            |
-| zpg    | zero page            | $LL        | $00LL番地がオペランド                                     |
-| zpg,X  | zero page, X-indexed | $LL,X      | $00LL+X番地がオペランド                                   |
-| zpg,Y  | zero page, Y-indexed | $LL,Y      | $00LL+Y番地がオペランド                                   |
+| 識別子 | 名前                 | アセンブリ | 意味                                                    |
+| ------ | -------------------- | ---------- | ------------------------------------------------------- |
+| A      | Accumulator          | A          | 値Aがオペランド                                         |
+| abs    | absolute             | $LLHH      | *$LLHH*番地がオペランド                                 |
+| abs,X  | absolute, X-indexed  | $LLHH,X    | *$LLHH+X*番地がオペランド                               |
+| abs,Y  | absolute, Y-indexed  | $LLHH,Y    | *$LLHH+Y*番地がオペランド                               |
+| #      | immediate            | #$BB       | 値BBがオペランド                                        |
+| impl   | implied              |            | オペランド無し                                          |
+| ind    | indirect             | ($LLHH)    | *$LLHH番地の値を***16-bitアドレスとして**オペランドに   |
+| X,ind  | X-indexed, indirect  | ($LL,X)    | *$00LL+X番地の値を***16-bitアドレスとして**オペランドに |
+| ind,Y  | indirect, Y-indexed  | ($LL),Y    | *$00LL番地の値**+Y**を*16-bitアドレスとしてオペランドに |
+| rel    | relative             | $BB        | 分岐先は$BB+PC                                          |
+| zpg    | zero page            | $LL        | $00LL番地がオペランド                                   |
+| zpg,X  | zero page, X-indexed | $LL,X      | $00LL+X番地がオペランド                                 |
+| zpg,Y  | zero page, Y-indexed | $LL,Y      | $00LL+Y番地がオペランド                                 |
 
 ちょっとややこしい部分もありますね。
 
@@ -239,7 +239,7 @@ switch (b) {
 慎重にオペランドを展開して、、
 
 ```c
-        switch (c) {
+switch (c) {
     case 0:
         switch (a) {
             case 5: goto LDY;
@@ -275,6 +275,38 @@ switch (b) {
 ```
 
 a, cで各命令の処理部分に飛ばします。例外も結構あるのですが、それらは余計な計算をしなくて良いようにアドレス計算の前に個別に飛ばしておきます。
+
+## 各命令の実装で若干迷ったところとか
+
+Carry flagとNegative flagの更新に困りました。
+
+http://teaching.idallen.com/dat2343/10f/notes/040_overflow.txt
+
+
+
+## 実際に動かしてみたい
+
+命令の実装、サイクル数の打ち込み等ができたので、実際に動かしてみたいわけですが、ちょっと待って下さい、**プログラムって何処に格納されるんですか？**
+
+ちょっと調べてみると、どこでも良いみたい...？
+
+$00-ff = zero page  
+
+$100-1ff = stack  
+
+$FFFA-FFFB - NMI vector  
+
+$FFFC-FFFD - RESET vector  
+
+$FFFE-FFFF - IRQ/BRK vector
+
+どこでも良いならとりあえず、0x0200からコピーして置いていきますか、、、
+
+あと、テストバイナリが必要です。適当なアセンブリを書いて読ませたいので、まずは6502専用のアセンブラを書こうと思います。
+
+## アセンブラを書く
+
+
 
 ## Notes
 

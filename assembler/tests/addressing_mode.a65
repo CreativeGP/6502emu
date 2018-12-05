@@ -1,0 +1,6 @@
+LDA #13
+LDA $30
+LDA $1230
+LDX #05
+LDA $30,X
+LDA ($40,X)
