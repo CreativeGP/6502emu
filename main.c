@@ -209,6 +209,7 @@ int main(int argc, char *argv[], char *envp[])
         
         switch (c) {
             case 0:
+                if (adrmode == ADR_INDIRECT_X) adrmode = ADR_IMMEDIATE;
                 switch (a) {
                     case 5: goto LDY;
                     case 6: goto CPY;
@@ -228,6 +229,8 @@ int main(int argc, char *argv[], char *envp[])
                 }
                 break;
             case 2:
+                if (adrmode == ADR_IMMEDIATE) adrmode = ADR_ACCUMULATOR;
+                if (adrmode == ADR_INDIRECT_X) adrmode = ADR_IMMEDIATE;
                 switch (a) {
                     case 0: goto ASL;
                     case 1: goto ROL;
