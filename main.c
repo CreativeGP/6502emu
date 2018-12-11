@@ -109,7 +109,18 @@ int main(int argc, char *argv[], char *envp[])
         return -1;
     }
 
-    PC = LOAD16(0xFFFC);
+    {
+        FILE *fp;
+        u32 size;
+        fp = fopen("assembler/out.bin", "rb");
+        fseek(fp, 0L, SEEK_END);
+        size = ftell(fp);
+        fseek(fp, 0L, SEEK_SET);
+        fread(mem + 0x0200, size, 1, fp);
+        fclose(fp);
+    }
+
+    PC = 0x0200 /*LOAD16(0xFFFC)*/;
     for (;;)
     {
         u8 op = mem[PC++];
@@ -188,6 +199,7 @@ int main(int argc, char *argv[], char *envp[])
             case 0xA0: { IMM_OP; adrmode = ADR_IMMEDIATE;    goto LDY; }
             case 0xC0: { IMM_OP; adrmode = ADR_IMMEDIATE;    goto CPY; }
             case 0xE0: { IMM_OP; adrmode = ADR_IMMEDIATE;    goto CPX; }
+            case 0xA2: { IMM_OP; adrmode = ADR_IMMEDIATE;    goto LDX; }
         }
 
         u8 a = (op & 0b11100000) >> 5;
