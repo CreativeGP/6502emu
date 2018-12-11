@@ -1,5 +1,16 @@
 import sys
+import struct
 from enum import Enum
+
+binary = ""
+
+def printf(*s): print(s)
+def printb(*s):
+    global binary
+    for sh in s:
+        binary += sh
+
+binprint = printb
 
 ACCUMULATOR= 8
 ABSOLUTE   = 3
@@ -15,42 +26,54 @@ ZEROPAGE   = 1
 ZEROPAGE_X = 5
 ZEROPAGE_Y = 12
 
+def little_endian(s):
+    if len(s) == 4:
+        return s[2:] + s[:2]
+    else:
+        return s
+
+def mn2hex(s):
+    if s[0] == '$':
+        return little_endian(s[1:])
+    elif s[0] == '%':
+        return little_endian(hex(int(s[1:], 2))[2:].zfill(2))
 
 f = open(sys.argv[1], 'r')
 
 for line in f:
     sp = line.split(' ')
     inst = sp[0]
+    if inst[0] == ';': continue
     if len(sp) == 1:
-        if inst == "BRK": print("00")
-        if inst == "TYA": print("98")
-        if inst == "NOP": print("EA")
-        if inst == "DEX": print("CA")
-        if inst == "TSX": print("BA")
-        if inst == "TAX": print("AA")
-        if inst == "TXS": print("9A")
-        if inst == "TXA": print("8A")
-        if inst == "SED": print("F8")
-        if inst == "INX": print("E8")
-        if inst == "CLD": print("D8")
-        if inst == "INY": print("C8")
-        if inst == "CLV": print("B8")
-        if inst == "TAY": print("A8")
-        if inst == "CLC": print("18")
-        if inst == "DEY": print("88")
-        if inst == "SEI": print("78")
-        if inst == "PLA": print("68")
-        if inst == "RTS": print("60")
-        if inst == "CLI": print("58")
-        if inst == "PHA": print("48")
-        if inst == "RTI": print("40")
-        if inst == "SEC": print("38")
-        if inst == "PLP": print("28")
-        if inst == "PHP": print("08")
-        if inst == "ASL": print("0A")
-        if inst == "ROL": print("2A")
-        if inst == "LSR": print("4A")
-        if inst == "ROR": print("6A")
+        if inst == "BRK": binprint("00")
+        if inst == "TYA": binprint("98")
+        if inst == "NOP": binprint("EA")
+        if inst == "DEX": binprint("CA")
+        if inst == "TSX": binprint("BA")
+        if inst == "TAX": binprint("AA")
+        if inst == "TXS": binprint("9A")
+        if inst == "TXA": binprint("8A")
+        if inst == "SED": binprint("F8")
+        if inst == "INX": binprint("E8")
+        if inst == "CLD": binprint("D8")
+        if inst == "INY": binprint("C8")
+        if inst == "CLV": binprint("B8")
+        if inst == "TAY": binprint("A8")
+        if inst == "CLC": binprint("18")
+        if inst == "DEY": binprint("88")
+        if inst == "SEI": binprint("78")
+        if inst == "PLA": binprint("68")
+        if inst == "RTS": binprint("60")
+        if inst == "CLI": binprint("58")
+        if inst == "PHA": binprint("48")
+        if inst == "RTI": binprint("40")
+        if inst == "SEC": binprint("38")
+        if inst == "PLP": binprint("28")
+        if inst == "PHP": binprint("08")
+        if inst == "ASL": binprint("0A")
+        if inst == "ROL": binprint("2A")
+        if inst == "LSR": binprint("4A")
+        if inst == "ROR": binprint("6A")
         continue
     
     oper = line.split(' ')[1]
@@ -61,133 +84,132 @@ for line in f:
     adrmode = IMPLIED
     if oper[0] == "#":
         adrmode = IMMEDIATE
-        num = oper[1:3]
+        num = mn2hex(oper[1:])
 
-    elif oper[0] == "$" and len(oper) == 5 and oper[4] == "X":
-        adrmode = ZEROPAGE_X
-        num = oper[1:3]
-    elif oper[0] == "$" and len(oper) == 5 and oper[4] == "Y":
-        adrmode = ZEROPAGE_Y
-        num = oper[1:3]
-    elif oper[0] == "$" and len(oper) == 3:
-        adrmode = ZEROPAGE
-        num = oper[1:3]
-
-    elif oper[0] == "$" and len(oper) == 7 and oper[6] == "X":
-        adrmode = ABSOLUTE_X
-        num = oper[1:5]
-    elif oper[0] == "$" and len(oper) == 7 and oper[6] == "Y":
-        adrmode = ABSOLUTE_Y
-        num = oper[1:5]
-    elif oper[0] == "$" and len(oper) == 5:
-        adrmode = ABSOLUTE
-        num = oper[1:5]
-        num = num[2:] + num[:2]
-
-    elif oper[0] == "(" and len(oper) == 7 and oper[5] == "X":
+    elif oper[0] == "(" and oper[-2] == "X":
         adrmode = INDIRECT_X
-        num = oper[2:4]
-    elif oper[0] == "(" and len(oper) == 7 and oper[6] == "Y":
+        num = mn2hex(oper[1:-3])
+    elif oper[0] == "(" and oper[-2] == "Y":
         adrmode = INDIRECT_Y
-        num = oper[2:4]
-    elif oper[0] == "(" and len(oper) == 7:
+        num = mn2hex(oper[1:-3])
+    elif oper[0] == "(":
         adrmode = INDIRECT
-        num = oper[2:6]
-        num = num[2:] + num[:2]
+        num = mn2hex(oper[1:-1])
+
+    elif oper[-1] == "X":
+        num = mn2hex(oper[:-2])
+        if len(num) == 2:
+            adrmode = ZEROPAGE_X
+        else:
+            adrmode = ABSOLUTE_X
+            
+    elif oper[-1] == "Y":
+        num = mn2hex(oper[:-2])
+        if len(num) == 2:
+            adrmode = ZEROPAGE_Y
+        else:
+            adrmode = ABSOLUTE_Y
+
+    else:
+        num = mn2hex(oper)
+        if len(num) == 2:
+            adrmode = ZEROPAGE
+        else:
+            adrmode = ABSOLUTE
 
     if adrmode == RELATIVE:
         if inst == "BCC":
-            print("90",num)
+            binprint("90",num)
             continue
         if inst == "BMI":
-            print("30",num)
+            binprint("30",num)
             continue
         if inst == "BCS":
-            print("B0",num)
+            binprint("B0",num)
             continue
         if inst == "BEQ":
-            print("F0",num)
+            binprint("F0",num)
             continue
         if inst == "BVS":
-            print("70",num)
+            binprint("70",num)
             continue
         if inst == "BPL":
-            print("10",num)
+            binprint("10",num)
             continue
         if inst == "BNE":
-            print("D0",num)
+            binprint("D0",num)
             continue
         if inst == "BVC":
-            print("50",num)
+            binprint("50",num)
             continue
     
     elif adrmode == ABSOLUTE:
         if inst == "BIT":
-            print("2C",num)
+            binprint("2C",num)
             continue
         if inst == "STY":
-            print("8C",num)
+            binprint("8C",num)
             continue
         if inst == "LDY":
-            print("AC",num)
+            binprint("AC",num)
             continue
         if inst == "JSR":
-            print("20",num)
+            binprint("20",num)
             continue
         if inst == "CPX":
-            print("EC",num)
+            binprint("EC",num)
             continue
         if inst == "JMP":
-            print("4C",num)
+            binprint("4C",num)
             continue
         if inst == "CPY":
-            print("CC",num)
+            binprint("CC",num)
             continue
 
     elif adrmode == ABSOLUTE_X:
         if inst == "LDY":
-            print("BC",num)
+            binprint("BC",num)
             continue
 
     elif adrmode == ZEROPAGE:
         if inst == "BIT":
-            print("24",num)
+            binprint("24",num)
             continue
         if inst == "STY":
-            print("84",num)
+            binprint("84",num)
             continue
         if inst == "LDY":
-            print("A4",num)
+            binprint("A4",num)
             continue
         if inst == "CPY":
-            print("C4",num)
+            binprint("C4",num)
             continue
         if inst == "CPX":
-            print("E4",num)
+            binprint("E4",num)
             continue
 
     elif adrmode == ZEROPAGE_X:
         if inst == "STY":
-            print("94",num)
+            binprint("94",num)
             continue
         if inst == "LDY":
-            print("B4",num)
+            binprint("B4",num)
             continue
 
     elif adrmode == INDIRECT:
         if inst == "JMP":
-            print("6C",num)
+            binprint("6C",num)
             continue
 
     elif adrmode == IMMEDIATE:
         if inst == "LDY":
-            print("A0",num)
+            binprint("A0",num)
             continue
         if inst == "CPY":
-            print("C0",num)
+            binprint("C0",num)
             continue
         if inst == "CPX":
-            print("E0",num)
+            binprint("E0",num)
             continue
 
     print(inst, oper, num)
@@ -195,30 +217,37 @@ for line in f:
     b = adrmode
 
     if b == INDIRECT_X: b = IMMEDIATE
-    if inst == "LDY": print(hex(0 + (b << 2) + (5 << 5))[2:].upper(), num)
-    if inst == "CPY": print(hex(0 + (b << 2) + (6 << 5))[2:].upper(), num)
-    if inst == "CPX": print(hex(0 + (b << 2) + (7 << 5))[2:].upper(), num)
+    if inst == "LDY": binprint(hex(0 + (b << 2) + (5 << 5))[2:].upper(), num)
+    if inst == "CPY": binprint(hex(0 + (b << 2) + (6 << 5))[2:].upper(), num)
+    if inst == "CPX": binprint(hex(0 + (b << 2) + (7 << 5))[2:].upper(), num)
     b = adrmode
 
-    if inst == "ORA": print(hex(1 + (b << 2) + (0 << 5))[2:].upper(), num)
-    if inst == "AND": print(hex(1 + (b << 2) + (1 << 5))[2:].upper(), num)
-    if inst == "EOR": print(hex(1 + (b << 2) + (2 << 5))[2:].upper(), num)
-    if inst == "ADC": print(hex(1 + (b << 2) + (3 << 5))[2:].upper(), num)
-    if inst == "STA": print(hex(1 + (b << 2) + (4 << 5))[2:].upper(), num)
-    if inst == "LDA": print(hex(1 + (b << 2) + (5 << 5))[2:].upper(), num)
-    if inst == "CMP": print(hex(1 + (b << 2) + (6 << 5))[2:].upper(), num)
-    if inst == "SBC": print(hex(1 + (b << 2) + (7 << 5))[2:].upper(), num)
+    if inst == "ORA": binprint(hex(1 + (b << 2) + (0 << 5))[2:].upper(), num)
+    if inst == "AND": binprint(hex(1 + (b << 2) + (1 << 5))[2:].upper(), num)
+    if inst == "EOR": binprint(hex(1 + (b << 2) + (2 << 5))[2:].upper(), num)
+    if inst == "ADC": binprint(hex(1 + (b << 2) + (3 << 5))[2:].upper(), num)
+    if inst == "STA": binprint(hex(1 + (b << 2) + (4 << 5))[2:].upper(), num)
+    if inst == "LDA": binprint(hex(1 + (b << 2) + (5 << 5))[2:].upper(), num)
+    if inst == "CMP": binprint(hex(1 + (b << 2) + (6 << 5))[2:].upper(), num)
+    if inst == "SBC": binprint(hex(1 + (b << 2) + (7 << 5))[2:].upper(), num)
 
     if b == IMMEDIATE: b = INDIRECT_X
-    if inst == "ASL": print(hex(2 + (b << 2) + (0 << 5))[2:].upper(), num)
-    if inst == "ROL": print(hex(2 + (b << 2) + (1 << 5))[2:].upper(), num)
-    if inst == "LSR": print(hex(2 + (b << 2) + (2 << 5))[2:].upper(), num)
-    if inst == "ROR": print(hex(2 + (b << 2) + (3 << 5))[2:].upper(), num)
-    if inst == "STX": print(hex(2 + (b << 2) + (4 << 5))[2:].upper(), num)
-    if inst == "LDX": print(hex(2 + (b << 2) + (5 << 5))[2:].upper(), num)
-    if inst == "DEC": print(hex(2 + (b << 2) + (6 << 5))[2:].upper(), num)
-    if inst == "INC": print(hex(2 + (b << 2) + (7 << 5))[2:].upper(), num)
+    if inst == "ASL": binprint(hex(2 + (b << 2) + (0 << 5))[2:].upper(), num)
+    if inst == "ROL": binprint(hex(2 + (b << 2) + (1 << 5))[2:].upper(), num)
+    if inst == "LSR": binprint(hex(2 + (b << 2) + (2 << 5))[2:].upper(), num)
+    if inst == "ROR": binprint(hex(2 + (b << 2) + (3 << 5))[2:].upper(), num)
+    if inst == "STX": binprint(hex(2 + (b << 2) + (4 << 5))[2:].upper(), num)
+    if inst == "LDX": binprint(hex(2 + (b << 2) + (5 << 5))[2:].upper(), num)
+    if inst == "DEC": binprint(hex(2 + (b << 2) + (6 << 5))[2:].upper(), num)
+    if inst == "INC": binprint(hex(2 + (b << 2) + (7 << 5))[2:].upper(), num)
     b = adrmode
     
-    
 f.close()
+
+if binary != "":
+    print(binary)
+    
+    with open('out.bin', 'wb') as fout:
+        bary = map(lambda s: int(s, 16), [binary[i:i+2] for i in range(0, len(binary), 2)])
+        for x in bary:
+            fout.write(chr(x))
