@@ -116,11 +116,11 @@ int main(int argc, char *argv[], char *envp[])
         fseek(fp, 0L, SEEK_END);
         size = ftell(fp);
         fseek(fp, 0L, SEEK_SET);
-        fread(mem + 0x0200, size, 1, fp);
+        fread(mem + 0x8000, size, 1, fp);
         fclose(fp);
     }
 
-    PC = 0x0200 /*LOAD16(0xFFFC)*/;
+    PC = 0x8000 /*LOAD16(0xFFFC)*/;
     for (;;)
     {
         u8 op = mem[PC++];

@@ -1,13 +1,20 @@
 import sys
 import struct
+import re
 from enum import Enum
+
+offset = 0
+defines = {}
+label_ind = {}
+labels = []
 
 binary = ""
 
 def printf(*s): print(s)
 def printb(*s):
-    global binary
+    global binary, offset
     for sh in s:
+        offset += len(sh)
         binary += sh
 
 binprint = printb
@@ -33,17 +40,44 @@ def little_endian(s):
         return s
 
 def mn2hex(s):
+    if s[0].isalpha():
+        if s in defines: s = defines[s]
+#        if s in labels: s = defines[s]
+    # String -> Hex
+    if s[0] == '"':
+        s = '$' + hex(ord(s[1]))[2:].upper()
+    
     if s[0] == '$':
         return little_endian(s[1:])
     elif s[0] == '%':
         return little_endian(hex(int(s[1:], 2))[2:].zfill(2))
+    else:
+        return little_endian(s)
 
 f = open(sys.argv[1], 'r')
+contents = f.read()
+contents = re.sub(r'(.*);.*', r'\1', contents)
 
-for line in f:
-    sp = line.split(' ')
+for line in contents.split("\n"):
+    sp = line.split()
+    if len(sp) == 0: continue
+    inst = sp[0]
+    if inst[-1] == ':':
+        label_ind[inst[:-1]] = len(labels)
+        labels.append(0)
+        continue
+    
+for line in contents.split("\n"):
+    sp = line.split()
+    if len(sp) == 0: continue
+    
     inst = sp[0]
     if inst[0] == ';': continue
+
+    if inst[-1] == ':':
+        labels[label_ind[inst[:-1]]] = offset
+        continue
+    
     if len(sp) == 1:
         if inst == "BRK": binprint("00")
         if inst == "TYA": binprint("98")
@@ -75,8 +109,12 @@ for line in f:
         if inst == "LSR": binprint("4A")
         if inst == "ROR": binprint("6A")
         continue
+
+    if sp[1] == 'EQU':
+        defines[sp[0]] = sp[2]
+        continue
     
-    oper = line.split(' ')[1]
+    oper = sp[1]
     oper = oper[:-1] if oper[-1] == '\n' else oper
     num  = ""
 
@@ -89,7 +127,7 @@ for line in f:
     elif oper[0] == "(" and oper[-2] == "X":
         adrmode = INDIRECT_X
         num = mn2hex(oper[1:-3])
-    elif oper[0] == "(" and oper[-2] == "Y":
+    elif oper[0] == "(" and oper[-1] == "Y":
         adrmode = INDIRECT_Y
         num = mn2hex(oper[1:-3])
     elif oper[0] == "(":
@@ -109,6 +147,11 @@ for line in f:
             adrmode = ZEROPAGE_Y
         else:
             adrmode = ABSOLUTE_Y
+
+    # TODO:　相対参照はアルファベット以外も対応する
+    elif oper[0].isalpha():
+        num = '*' + chr(ord('G') + label_ind[oper])
+        adrmode = RELATIVE
 
     else:
         num = mn2hex(oper)
@@ -244,10 +287,26 @@ for line in f:
     
 f.close()
 
+# ラベル解決
+for i in range(len(binary)):
+    if not binary[i] in '1234567890ABCDEF':
+        dst = labels[ord(binary[i+1]) - ord('G')] - i
+        pay = hex(256+dst if dst < 0 else dst)[2:].zfill(2).upper()
+        binary = binary[:i] + pay + binary[i+2:]
+
+print(binary)
+for i in range(0,len(binary),4):
+    try:
+        binary = binary[:i] + binary[i+2] + binary[i+3] + binary[i] + binary[i+1] + binary[i+4:]
+    except IndexError:
+        binary = binary[:i]  + '00' + binary[i] + binary[i+1]
+
 if binary != "":
     print(binary)
-    
+
+    report = ""
     with open('out.bin', 'wb') as fout:
-        bary = map(lambda s: int(s, 16), [binary[i:i+2] for i in range(0, len(binary), 2)])
-        for x in bary:
-            fout.write(chr(x))
+        fout.write(bytes.fromhex(binary))
+        # bary = map(lambda s: int(s, 16), [binary[i:i+2] for i in range(0, len(binary), 2)])
+        # for i in range(0,bary,2):
+        #     fout.write(x.to_bytes(1, byteorder='little'))
