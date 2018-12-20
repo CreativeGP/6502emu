@@ -294,12 +294,12 @@ for i in range(len(binary)):
         pay = hex(256+dst if dst < 0 else dst)[2:].zfill(2).upper()
         binary = binary[:i] + pay + binary[i+2:]
 
-print(binary)
-for i in range(0,len(binary),4):
-    try:
-        binary = binary[:i] + binary[i+2] + binary[i+3] + binary[i] + binary[i+1] + binary[i+4:]
-    except IndexError:
-        binary = binary[:i]  + '00' + binary[i] + binary[i+1]
+# print(binary)
+# for i in range(0,len(binary),4):
+#     try:
+#         binary = binary[:i] + binary[i+2] + binary[i+3] + binary[i] + binary[i+1] + binary[i+4:]
+#     except IndexError:
+#         binary = binary[:i]  + '00' + binary[i] + binary[i+1]
 
 if binary != "":
     print(binary)
