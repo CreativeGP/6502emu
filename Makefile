@@ -1,4 +1,4 @@
-6502: main.c
+6502: main.c inst.h
 	gcc main.c -o 6502 -g3 # -O3 -fomit-frame-pointer
 
 run: 6502
