@@ -79,42 +79,42 @@ goto ret;
 */
 BCC:
 if (SR.flags.C == 0)
-    PC = (u16)(PC + (i8)operand);
+    PC = (u16)(PC + (i8)operand - 1);
 goto ret;
 
 BCS:
 if (SR.flags.C == 1)
-    PC = (u16)(PC + (i8)operand);
+    PC = (u16)(PC + (i8)operand - 1);
 goto ret;
 
 BEQ:
 if (SR.flags.Z == 1)
-    PC = (u16)(PC + (i8)operand);
+    PC = (u16)(PC + (i8)operand - 1);
 goto ret;
 
 BMI:
 if (SR.flags.N == 1)
-    PC = (u16)(PC + (i8)operand);
+    PC = (u16)(PC + (i8)operand - 1);
 goto ret;
 
 BPL:
 if (SR.flags.N == 0)
-    PC = (u16)(PC + (i8)operand);
+    PC = (u16)(PC + (i8)operand - 1);
 goto ret;
 
 BNE:
 if (SR.flags.Z == 0)
-    PC = (u16)(PC + (i8)operand);
+    PC = (u16)(PC + (i8)operand - 1);
 goto ret;
 
 BVC:
 if (SR.flags.O == 0)
-    PC = (u16)(PC + (i8)operand);
+    PC = (u16)(PC + (i8)operand - 1);
 goto ret;
 
 BVS:
 if (SR.flags.O == 1)
-    PC = (u16)(PC + (i8)operand);
+    PC = (u16)(PC + (i8)operand - 1);
 goto ret;
 
 /*
