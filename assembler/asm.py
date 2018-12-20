@@ -13,6 +13,7 @@ binary = ""
 def printf(*s): print(s)
 def printb(*s):
     global binary, offset
+    print(s)
     for sh in s:
         offset += len(sh)
         binary += sh
@@ -66,6 +67,8 @@ for line in contents.split("\n"):
         label_ind[inst[:-1]] = len(labels)
         labels.append(0)
         continue
+
+print(label_ind)
     
 for line in contents.split("\n"):
     sp = line.split()
@@ -75,7 +78,7 @@ for line in contents.split("\n"):
     if inst[0] == ';': continue
 
     if inst[-1] == ':':
-        labels[label_ind[inst[:-1]]] = offset
+        labels[label_ind[inst[:-1]]] = int(offset/2)
         continue
     
     if len(sp) == 1:
@@ -150,6 +153,7 @@ for line in contents.split("\n"):
 
     # TODO:　相対参照はアルファベット以外も対応する
     elif oper[0].isalpha():
+        print(binary)
         num = '*' + chr(ord('G') + label_ind[oper])
         adrmode = RELATIVE
 
@@ -159,6 +163,8 @@ for line in contents.split("\n"):
             adrmode = ZEROPAGE
         else:
             adrmode = ABSOLUTE
+    
+    num = num.zfill(2)
 
     if adrmode == RELATIVE:
         if inst == "BCC":
@@ -260,37 +266,37 @@ for line in contents.split("\n"):
     b = adrmode
 
     if b == INDIRECT_X: b = IMMEDIATE
-    if inst == "LDY": binprint(hex(0 + (b << 2) + (5 << 5))[2:].upper(), num)
-    if inst == "CPY": binprint(hex(0 + (b << 2) + (6 << 5))[2:].upper(), num)
-    if inst == "CPX": binprint(hex(0 + (b << 2) + (7 << 5))[2:].upper(), num)
+    if inst == "LDY": binprint(hex(0 + (b << 2) + (5 << 5))[2:].zfill(2).upper(), num)
+    if inst == "CPY": binprint(hex(0 + (b << 2) + (6 << 5))[2:].zfill(2).upper(), num)
+    if inst == "CPX": binprint(hex(0 + (b << 2) + (7 << 5))[2:].zfill(2).upper(), num)
     b = adrmode
 
-    if inst == "ORA": binprint(hex(1 + (b << 2) + (0 << 5))[2:].upper(), num)
-    if inst == "AND": binprint(hex(1 + (b << 2) + (1 << 5))[2:].upper(), num)
-    if inst == "EOR": binprint(hex(1 + (b << 2) + (2 << 5))[2:].upper(), num)
-    if inst == "ADC": binprint(hex(1 + (b << 2) + (3 << 5))[2:].upper(), num)
-    if inst == "STA": binprint(hex(1 + (b << 2) + (4 << 5))[2:].upper(), num)
-    if inst == "LDA": binprint(hex(1 + (b << 2) + (5 << 5))[2:].upper(), num)
-    if inst == "CMP": binprint(hex(1 + (b << 2) + (6 << 5))[2:].upper(), num)
-    if inst == "SBC": binprint(hex(1 + (b << 2) + (7 << 5))[2:].upper(), num)
+    if inst == "ORA": binprint(hex(1 + (b << 2) + (0 << 5))[2:].zfill(2).upper(), num)
+    if inst == "AND": binprint(hex(1 + (b << 2) + (1 << 5))[2:].zfill(2).upper(), num)
+    if inst == "EOR": binprint(hex(1 + (b << 2) + (2 << 5))[2:].zfill(2).upper(), num)
+    if inst == "ADC": binprint(hex(1 + (b << 2) + (3 << 5))[2:].zfill(2).upper(), num)
+    if inst == "STA": binprint(hex(1 + (b << 2) + (4 << 5))[2:].zfill(2).upper(), num)
+    if inst == "LDA": binprint(hex(1 + (b << 2) + (5 << 5))[2:].zfill(2).upper(), num)
+    if inst == "CMP": binprint(hex(1 + (b << 2) + (6 << 5))[2:].zfill(2).upper(), num)
+    if inst == "SBC": binprint(hex(1 + (b << 2) + (7 << 5))[2:].zfill(2).upper(), num)
 
     if b == IMMEDIATE: b = INDIRECT_X
-    if inst == "ASL": binprint(hex(2 + (b << 2) + (0 << 5))[2:].upper(), num)
-    if inst == "ROL": binprint(hex(2 + (b << 2) + (1 << 5))[2:].upper(), num)
-    if inst == "LSR": binprint(hex(2 + (b << 2) + (2 << 5))[2:].upper(), num)
-    if inst == "ROR": binprint(hex(2 + (b << 2) + (3 << 5))[2:].upper(), num)
-    if inst == "STX": binprint(hex(2 + (b << 2) + (4 << 5))[2:].upper(), num)
-    if inst == "LDX": binprint(hex(2 + (b << 2) + (5 << 5))[2:].upper(), num)
-    if inst == "DEC": binprint(hex(2 + (b << 2) + (6 << 5))[2:].upper(), num)
-    if inst == "INC": binprint(hex(2 + (b << 2) + (7 << 5))[2:].upper(), num)
+    if inst == "ASL": binprint(hex(2 + (b << 2) + (0 << 5))[2:].zfill(2).upper(), num)
+    if inst == "ROL": binprint(hex(2 + (b << 2) + (1 << 5))[2:].zfill(2).upper(), num)
+    if inst == "LSR": binprint(hex(2 + (b << 2) + (2 << 5))[2:].zfill(2).upper(), num)
+    if inst == "ROR": binprint(hex(2 + (b << 2) + (3 << 5))[2:].zfill(2).upper(), num)
+    if inst == "STX": binprint(hex(2 + (b << 2) + (4 << 5))[2:].zfill(2).upper(), num)
+    if inst == "LDX": binprint(hex(2 + (b << 2) + (5 << 5))[2:].zfill(2).upper(), num)
+    if inst == "DEC": binprint(hex(2 + (b << 2) + (6 << 5))[2:].zfill(2).upper(), num)
+    if inst == "INC": binprint(hex(2 + (b << 2) + (7 << 5))[2:].zfill(2).upper(), num)
     b = adrmode
     
 f.close()
 
 # ラベル解決
-for i in range(len(binary)):
+for i in range(0,len(binary),2):
     if not binary[i] in '1234567890ABCDEF':
-        dst = labels[ord(binary[i+1]) - ord('G')] - i
+        dst = labels[ord(binary[i+1]) - ord('G')] - int(i/2)
         pay = hex(256+dst if dst < 0 else dst)[2:].zfill(2).upper()
         binary = binary[:i] + pay + binary[i+2:]
 
