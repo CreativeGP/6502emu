@@ -223,11 +223,11 @@ int main(int argc, char *argv[], char *envp[])
         u16 tmppc = PC++;
 
         switch (b) {
-            case 0: operand = LOAD16(mem[CUT(tmppc+X)]); break;       // X,ind
+            case 0: operand = LOAD16(mem[tmppc]+X); break;       // X,ind
             case 1: operand = mem[tmppc]; break;                      // zpg
             case 2: operand = mem[tmppc]; break;                      // #
             case 3: operand = LLHH(mem[tmppc], mem[PC++]); break;     // abs
-            case 4: operand = LOAD16(CUT(mem[tmppc]+Y)); break;       // ind,Y
+            case 4: operand = LOAD16(mem[tmppc])+Y; break;       // ind,Y
             case 5: operand = CUT(mem[tmppc]+X); break;               // zpg,X
             case 6: operand = LLHH(mem[tmppc], mem[PC++]) + Y; break; // abs,Y
             case 7: operand = LLHH(mem[tmppc], mem[PC++]) + X; break; // abs,X
@@ -298,7 +298,7 @@ static inline void push(u8 data)
 
 static inline u8 pull()
 {
-    return mem[0x0100 + S++];
+    return mem[0x0100 + ++S];
 }
 
 
