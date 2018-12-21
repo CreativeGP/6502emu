@@ -132,7 +132,7 @@ goto ret;
   absolute      BIT oper      2C    3     4
 */
 BIT:
-if (A & mem[operand] == 0) SR.flags.Z = 0;
+SR.flags.Z = (A & mem[operand]);
 SR.flags.N = (mem[operand] & 0b10000000) >> 7;
 SR.flags.O = (mem[operand] & 0b01000000) >> 6;
 goto ret;
@@ -196,36 +196,42 @@ goto ret;
 
 
 TAX:
+SR.flags.N = SR.flags.Z = 0;
 X = A;
 if (SIGNBIT(X)) SR.flags.N = 1;
 if (X == 0)     SR.flags.Z = 1;
 goto ret;
 
 TAY:
+SR.flags.N = SR.flags.Z = 0;
 Y = A;
 if (SIGNBIT(Y)) SR.flags.N = 1;
 if (Y == 0)     SR.flags.Z = 1;
 goto ret;
 
 TYA:
+SR.flags.N = SR.flags.Z = 0;
 A = Y;
 if (SIGNBIT(A)) SR.flags.N = 1;
 if (A == 0)     SR.flags.Z = 1;
 goto ret;
 
 TSX:
+SR.flags.N = SR.flags.Z = 0;
 X = SR.P;
 if (SIGNBIT(X)) SR.flags.N = 1;
 if (X == 0)     SR.flags.Z = 1;
 goto ret;
 
 TXS:
+SR.flags.N = SR.flags.Z = 0;
 SR.P = X;
 if (SIGNBIT(SR.P)) SR.flags.N = 1;
 if (SR.P == 0)     SR.flags.Z = 1;
 goto ret;
 
 TXA:
+SR.flags.N = SR.flags.Z = 0;
 A = X;
 if (SIGNBIT(A)) SR.flags.N = 1;
 if (A == 0)     SR.flags.Z = 1;
@@ -236,7 +242,7 @@ goto ret;
   LDX  Load Index X with Memory
 
   M -> X                           N Z C I D V
-  + + - - - -
+                                   + + - - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -247,6 +253,7 @@ goto ret;
   absolute,Y    LDX oper,Y    BE    3     4*
 */
 LDX:
+SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     X = operand;
     SR.flags.N = SIGNBIT(X);
@@ -276,6 +283,7 @@ goto ret;
   (indirect),Y  LDA (oper),Y  B1    2     5*
 */
 LDA:
+SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     A = operand;
     if (A == 0) SR.flags.Z = 1;
@@ -302,6 +310,7 @@ goto ret;
   absolute,X    LDY oper,X    BC    3     4*
 */
 LDY:
+SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     if (SIGNBIT(operand)) SR.flags.N = 1;
     if (operand == 0) SR.flags.Z = 0;
@@ -328,6 +337,7 @@ goto ret;
   absolute      CPY oper      CC    3     4
 */
 CPY:
+SR.flags.C = SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     if (operand > Y) {
         SR.flags.C = 1;
@@ -356,6 +366,7 @@ goto ret;
   absolute      CPX oper      EC    3     4
 */
 CPX:
+SR.flags.C = SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     if (operand > X) {
         SR.flags.C = 1;
@@ -389,6 +400,7 @@ goto ret;
   (indirect),Y  ORA (oper),Y  11    2     5*
 */
 ORA:
+SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     A = A | operand;
     if (A == 0) SR.flags.Z = 1;
@@ -418,6 +430,7 @@ goto ret;
   (indirect),Y  AND (oper),Y  31    2     5*
 */
 AND:
+SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     A = A & operand;
     if (A == 0) SR.flags.Z = 1;
@@ -447,6 +460,7 @@ goto ret;
   (indirect),Y  EOR (oper),Y  51    2     5*
 */
 EOR:
+SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     A = A ^ operand;
     if (A == 0) SR.flags.Z = 1;
@@ -476,6 +490,7 @@ goto ret;
   (indirect),Y  ADC (oper),Y  71    2     5*
 */
 ADC:
+SR.flags.C = SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     u16 tmp = A + operand + SR.flags.C;
     if (tmp != tmp&0xFF) SR.flags.C = 1;
@@ -495,7 +510,7 @@ goto ret;
   CMP  Compare Memory with Accumulator
 
   A - M                            N Z C I D V
-  + + + - - -
+                                   + + + - - -
 
   addressing    assembler    opc  bytes  cyles
   --------------------------------------------
@@ -509,6 +524,7 @@ goto ret;
   (indirect),Y  CMP (oper),Y  D1    2     5*
 */
 CMP:
+SR.flags.N = SR.flags.C = SR.flags.Z = 0;
 if (adrmode == ADR_IMMEDIATE) {
     if (A < operand) {
         SR.flags.N = 1;
@@ -543,6 +559,7 @@ goto ret;
   (indirect),Y  SBC (oper),Y  F1    2     5*
 */
 SBC:
+SR.flags.C = SR.flags.N = SR.flags.Z = SR.flags.O = 0;
 {
     i16 tmp = 0;
     if (adrmode == ADR_IMMEDIATE) {
@@ -573,6 +590,7 @@ goto ret;
   absolute,X    ASL oper,X    1E    3     7
  */
 ASL:
+SR.flags.C = SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_ACCUMULATOR) {
     if (SIGNBIT(A)) SR.flags.C = 1;
     A <<= 1;
@@ -601,6 +619,7 @@ goto ret;
   absolute,X    ROL oper,X    3E    3     7
 */
 ROL:
+SR.flags.C = SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_ACCUMULATOR) {
     u8 tmp = CUT(A<<1) + SR.flags.C;
     SR.flags.C = SIGNBIT(A);
@@ -631,6 +650,7 @@ goto ret;
   absolute,X    LSR oper,X    5E    3     7
 */
 LSR:
+SR.flags.C = SR.flags.Z = 0;
 if (adrmode == ADR_ACCUMULATOR) {
     SR.flags.C = LSBIT(A);
     A >>= 1;
@@ -657,6 +677,7 @@ goto ret;
   absolute,X    ROR oper,X    7E    3     7
 */
 ROR:
+SR.flags.C = SR.flags.N = SR.flags.Z = 0;
 if (adrmode == ADR_ACCUMULATOR) {
     u8 tmp = (A>>1) + (SR.flags.C<<8);
     SR.flags.C = LSBIT(A);
@@ -686,32 +707,38 @@ goto ret;
   absolute,X    DEC oper,X    DE    3     7
 */
 DEC:
+SR.flags.N = SR.flags.Z = 0;
 mem[operand] = CUT(mem[operand]-1);
 SR.flags.N = SIGNBIT(mem[operand]);
 if (mem[operand] == 0) SR.flags.Z = 1;
 goto ret;
 DEX:
+SR.flags.N = SR.flags.Z = 0;
 X = CUT(X-1);
 SR.flags.N = SIGNBIT(X);
 if (X == 0) SR.flags.Z = 1;
 goto ret;
 DEY:
+SR.flags.N = SR.flags.Z = 0;
 Y = CUT(Y-1);
 SR.flags.N = SIGNBIT(Y);
 if (Y == 0) SR.flags.Z = 1;
 goto ret;
 
 INC:
+SR.flags.N = SR.flags.Z = 0;
 mem[operand] = CUT(mem[operand]+1);
 SR.flags.N = SIGNBIT(mem[operand]);
 if (mem[operand] == 0) SR.flags.Z = 1;
 goto ret;
 INX:
+SR.flags.N = SR.flags.Z = 0;
 X = CUT(X+1);
 SR.flags.N = SIGNBIT(X);
 if (X == 0) SR.flags.Z = 1;
 goto ret;
 INY:
+SR.flags.N = SR.flags.Z = 0;
 Y = CUT(Y+1);
 SR.flags.N = SIGNBIT(Y);
 if (Y == 0) SR.flags.Z = 1;
