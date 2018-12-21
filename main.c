@@ -10,9 +10,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #define LLHH(l, h) ((l) + (h<<8))
-#define CUT(x) (x)&0xFF
+#define CUT(x) ((x)&0xFF)
 #define LOAD16(x) LLHH(mem[x],mem[x+1])
 
 #define SIGNBIT(x) (((x)&0b10000000) >> 7)
@@ -120,9 +121,19 @@ int main(int argc, char *argv[], char *envp[])
         fclose(fp);
     }
 
-    // input
-    mem[0x0006] = "banana";
-    mem[0x2000] = "banana";
+    // pattern-matcher
+    // strcpy(mem + 0x0006, "banana"); //test
+    // strcpy(mem + 0x2000, "*"); //pattern
+
+    // sort8
+    mem[0] = 8;
+    mem[1] = 13;
+    mem[2] = 28;
+    mem[3] = 2;
+    mem[4] = 9;
+    mem[5] = 82;
+    mem[6] = 103;
+    mem[7] = 57;
 
     PC = 0x8000 /*LOAD16(0xFFFC)*/;
     for (;;)
@@ -262,12 +273,16 @@ int main(int argc, char *argv[], char *envp[])
 
 #include "inst.h"
 ret:
+        if (ExitRequired) break;
 
         if (Counter <= 0) {
             /* check interrupts */
             Counter += InterruptPeriod;
-            if (ExitRequired) break;
         }
+    }
+
+    for (int i = 0; i < 8; i++) {
+        printf("%d ", mem[i]);
     }
 
     free(mem);
