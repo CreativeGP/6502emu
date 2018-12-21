@@ -30,6 +30,7 @@ REG:
         CMP #0          ; Are we at end of string?
         BNE NEXT        ; Not yet, loop
 FOUND:
+        SEC
         RTS             ; Success, return with C=1
 
 STAR:
