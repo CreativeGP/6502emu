@@ -120,6 +120,10 @@ int main(int argc, char *argv[], char *envp[])
         fclose(fp);
     }
 
+    // input
+    mem[0x0006] = "banana";
+    mem[0x2000] = "banana";
+
     PC = 0x8000 /*LOAD16(0xFFFC)*/;
     for (;;)
     {
